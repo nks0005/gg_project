@@ -1,5 +1,7 @@
 const Discord = require('discord.js');
 const token = require('../../config.json');
+const process = require('./process');
+
 
 const client = new Discord.Client({
     intents: ["GUILDS", "GUILD_MESSAGES"]
@@ -19,6 +21,10 @@ client.on('message', msg => {
         if (msg.content === '!help') msg.channel.send(`
         > !hellgate : 헬게이트를 도는 유저가 있는지 확인
         `);
+
+        if (msg.content === '!hellgate') {
+            process.hellgate(msg);
+        }
 
 
     } catch (e) {
