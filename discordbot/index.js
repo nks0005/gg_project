@@ -1,7 +1,9 @@
 const Discord = require('discord.js');
 const token = require('../../config.json');
 const process = require('./process');
+const db = require('../restapi/db');
 
+db.con.connect();
 
 const client = new Discord.Client({
     intents: ["GUILDS", "GUILD_MESSAGES"]
