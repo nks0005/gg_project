@@ -29,9 +29,10 @@ CREATE TABLE IF NOT EXISTS killevent_killer(
 
 CREATE TABLE IF NOT EXISTS killer(
 	killer_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+	avgIp INT,
     equiment_id INT,
     name VARCHAR(255),
-    user_id INT,
+    user_id VARCHAR(255),
     guildName VARCHAR(255),
     AlianceName VARCHAR(255),
     AlianceTag VARCHAR(255)
@@ -39,9 +40,10 @@ CREATE TABLE IF NOT EXISTS killer(
 
 CREATE TABLE IF NOT EXISTS victim(
 	victim_id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    avgIp INT,
     equiment_id INT,
     name VARCHAR(255),
-    user_id INT,
+    user_id VARCHAR(255),
     guildName VARCHAR(255),
     AlianceName VARCHAR(255),
     AlianceTag VARCHAR(255)
