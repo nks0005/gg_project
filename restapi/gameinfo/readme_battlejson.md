@@ -288,7 +288,7 @@ battlelog의 totalkills만큼의 kill event가 존재한다.
 
 # 데이터베이스 구조 
 > table : battelog
-killboard_id AI PK
+killboard_id PK
 start_time
 end_time
 totalFrame
@@ -324,6 +324,7 @@ killer_id
 killer_id AI PK
 equiment_id - 착용 아이템
 Name
+user_id
 GuildName
 AlianceName
 AlianceTag
