@@ -1,7 +1,7 @@
 const db = require('./db');
 const crawling = require('./crawling');
 const async = require('async');
-const { Console } = require('console');
+const { Console, debug } = require('console');
 
 
 
@@ -204,29 +204,35 @@ function eventlog_process(body) {
 
 
 function battlelog_process(body) {
-    // db 접속
+    try {
+        // db 접속
 
-    // battlelog [TABLE]
-    var killboard_id = parseInt(body[0]['id']);
-    var startTime = new Date(body[0]['startTime']);
-    var endTime = new Date(body[0]['endTime']);
-    var totalFame = parseInt(body[0]['totalFame']);
-    var totalKills = parseInt(body[0]['totalKills']);
-
-    var sql = `INSERT IGNORE INTO battlelog (killboard_id, start_time, end_time, totalFrame, totalKills) VALUES ('${killboard_id}', '${startTime.toISOString()}', '${endTime.toISOString()}', '${totalFame}', '${totalKills}' );`;
-    db.con.query(sql, function(err, result) {
-        if (err) throw err;
-        //console.log("Number of records inserted: " + result.affectedRows);
-        //console.log("result? " + result.insertId);
+        // battlelog [TABLE]
+        var killboard_id = parseInt(body[0]['id']);
+        var startTime = new Date(body[0]['startTime']);
+        var endTime = new Date(body[0]['endTime']);
+        var totalFame = parseInt(body[0]['totalFame']);
+        var totalKills = parseInt(body[0]['totalKills']);
+        var totalplayers = Object.keys(body[0]['players']).length;
 
 
-        // event 크롤링을 진행해야 함 - 수정해야할것 : insert 결과가 있는 경우
-        if (result.affectedRows == 1) {
-            console.log("crawling start");
-            var eventurl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${killboard_id}?offset=0&limit=51`
-            crawling.start(eventlog_process, eventurl);
-        }
-    });
+        var sql = `INSERT IGNORE INTO battlelog (killboard_id, start_time, end_time, totalFrame, totalKills, totalplayers) VALUES ('${killboard_id}', '${startTime.toISOString()}', '${endTime.toISOString()}', '${totalFame}', '${totalKills}', '${totalplayers}' );`;
+        db.con.query(sql, function(err, result) {
+            if (err) throw err;
+            //console.log("Number of records inserted: " + result.affectedRows);
+            //console.log("result? " + result.insertId);
+
+
+            // event 크롤링을 진행해야 함 - 수정해야할것 : insert 결과가 있는 경우
+            if (result.affectedRows == 1) {
+                console.log("crawling start");
+                var eventurl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${killboard_id}?offset=0&limit=51`
+                crawling.start(eventlog_process, eventurl);
+            }
+        });
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 

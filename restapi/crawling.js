@@ -16,14 +16,21 @@ function start(callback, url) {
         });
 
         response.on('end', function() {
-            const body = JSON.parse(data);
-            callback(body);
+            try {
+                const body = JSON.parse(data);
+                callback(body);
+            } catch (e) {
+                console.log(e);
+            }
+
+        });
+
+        request.on('error', function(error) {
+            console.log('An Error', error);
         });
     });
 
-    request.on('error', function(error) {
-        console.log('An Error', error);
-    });
+
     request.end();
 }
 

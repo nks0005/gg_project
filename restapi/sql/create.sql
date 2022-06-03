@@ -5,7 +5,8 @@ CREATE TABLE IF NOT EXISTS battlelog (
     start_time TIMESTAMP,
     end_time TIMESTAMP,
     totalFrame INT,
-    totalKills INT
+    totalKills INT,
+    totalplayers INT
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS battlelog_killevent(

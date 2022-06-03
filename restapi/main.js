@@ -22,7 +22,7 @@ async function main() {
             var url = `https://gameinfo.albiononline.com/api/gameinfo/battles?offset=${i}&limit=1&sort=recent`;
             crawling.start(process.battlelog_process, url);
         }
-        await sleep(10000);
+        await sleep(30000);
         console.log("End");
     }
     db.con.end();
