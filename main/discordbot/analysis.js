@@ -1,139 +1,60 @@
-// 입력 : 킬보드 id
-
-/*
-// 배틀 로그
-https://gameinfo.albiononline.com/api/gameinfo/battles?offset=${i}&limit=1&sort=recent
-
-{
-    id : 배틀 로그
-    startTime : 시작 시간
-    endTime : 종료 시간
-    timeout : ?
-    totalFame : 킬 페임
-    totalKills : 킬수
-    clusterName : ?
-    players : { } 플레이어 정보
-    guilds : { }
-    alliances : { }
-}
-
-https://gameinfo.albiononline.com/api/gameinfo/events/battle/${killboard_id}?offset=0&limit=${killcount}
-{
-    groupMemberCount : 파티원 수
-    numberOfParticipants : 킬에 관련된 수
-    EventId : 이벤트 id
-    TimeStamp : 킬 발생 시간
-    Version : 4 고정?
-    Killer : {
-        AverageItemPower : 아이피float
-        Equipment : { }
-        Inventory : { }
-        Name : 이름
-        Id : 유저 Id
-        GuildName : 길드 명
-        GuildId
-        AllianceName
-        AllianceId
-        AllianceTag
-        DeathFame
-        KillFame : 킬의 경우 존재
-        FameRatio
-        LifetimeStatistics : { }
+class Mutex {
+    constructor() {
+        this.lock = false;
     }
-    Victim : {
-        AverageItemPower
-        Equipment
-        Inventory
-        Name
-        Id
-        uildName : 길드 명
-        GuildId
-        AllianceName
-        AllianceId
-        AllianceTag
-        DeathFame : 데스의 경우 존재
-        KillFame
-        FameRatio
-        LifetimeStatistics : { }
+
+    sleep(ms) {
+            return new Promise(resolve => {
+                setTimeout(resolve, ms);
+            })
+        }
+        // https://lahuman.github.io/nodejs_sleep_inside_for/
+
+    async use() {
+        while (true) {
+            if (this.lock === false) {
+                break;
+            }
+            await this.sleep(100);
+        }
+
+        this.lock = true;
     }
-    TotalVictimKillFame : Victim의 데스 페임과 같다
-    Location : ?
-    Participants : {
-        AverageItemPower
-        Equipment
-        Inventory
-        Name
-        Id
-        GuildName
-        GuildId
-        AllianceName
-        AllianceId
-        AllianceTag
-        Avatar
-        AvatarRing
-        DeathFame
-        KillFame
-        FAmeRatio
-        LifetimeStatistics
-        DamageDone
-        SupportHealingDone
+
+    release() {
+        this.lock = false;
     }
-    GroupMember : {}
-    GvGMatch : null
-    BattleId
-    KillArea : OPEN_WORLD
-    Category : null
-    Type : KILL
 }
-*/
+// https://changmyeong.tistory.com/54
 
-/*
-1. 킬보드 정보를 얻는다
-2. 킬보드 정보로 부터 킬 이벤트 정보들을 얻는다. 킬 이벤트 정보들을 배열에 저장한다.
-    2.1. players = 10
-    2.2. kill players [5~9]
+class analysis {
+    constructor() {
+        this.updateAllCount = 20; // 한번의 updateAll 함수에서 업데이트할 킬보드 수
 
-json 파일 구조
-{
-    battleId = ?,       // 배틀로그
-    totalKills = ?,     // 총 킬수
-    totalPlayers = ?,   // 총 플레이어 수
-    startTime = ?,
-    killevent = [
-        {
-            eventId = ?,
-            TimeStamp = ?,
-            victim = {
-                name,
-                equiment
-            },
-            killers = [{
-                name,
-                equiment,
-                damagedone,
-                supporthealingdone
-            },],
-        },
-    ]
+        this.arrTotal = new Array(); // 모든 킬보드 정보를 담을 배열
+        this.mutex = new Mutex(); // 비동기 처리 중 크리티컬 섹션 락 구현
+        this.updateAll();
+    }
 
 
+
+    updateAll() {
+        // 최근 킬보드 20개를 불러와 조건에 맞는 킬보드를 배열에 담습니다.
+        // https://gameinfo.albiononline.com/api/gameinfo/battles?offset=${i}&limit=1&sort=recent
+        for (var i = 0; i < this.updateAllCount; i++) {
+            this.update(`https://gameinfo.albiononline.com/api/gameinfo/battles?offset=${i}&limit=1&sort=recent`);
+        }
+    }
+
+    async update(url) {
+        // url에 접속하여 데이터를 얻는다.
+
+
+    }
 }
-
-
---- 킬 이벤트 정보를 담은 배열
-3. (json)배열을 분석하여 출력한다.
-[배틀 로그]
-    [막타친유저 🔪 피해자]
-        [유저[데미지, 힐량] 🔪]
-        ...
-    ...
-[배틀 로그 끝]
-...
-
-
-
-*/
-async function analysis(battleId) {
+async function auto_analysis() {
+    // 1. 최신 킬보드 정보를 얻는다
+    //https: //gameinfo.albiononline.com/api/gameinfo/battles?offset=${i}&limit=1&sort=recent
 
 }
 
