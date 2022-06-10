@@ -13,7 +13,7 @@ class battlelog {
             database: 'my_bot'
         });
 
-        this.battleMax = 20;
+        this.battleMax = 50;
 
         this.urlBattlelog = `https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${this.battleMax}&sort=recent`;
     }
@@ -260,7 +260,7 @@ class battlelog {
         while (true) {
             try {
                 await this.update();
-                await this.sleep(10000);
+                await this.sleep(5000);
 
             } catch (e) {
                 console.log(e);
