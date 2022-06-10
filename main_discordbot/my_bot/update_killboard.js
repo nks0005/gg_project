@@ -39,7 +39,7 @@ class battlelog {
                 res.on('data', function(chunk) { data += chunk.toString(); });
                 res.on('end', function() {
                     if (res.statusCode === 200) {
-                        console.log(`${url} OK`);
+                        //console.log(`${url} OK`);
                         const body = JSON.parse(data);
                         resolve(body);
                         // 처리 함수
@@ -108,6 +108,8 @@ class battlelog {
     }
 
     async processall_db(battles, killevents, players) {
+
+
         for (var i = 0; i < battles.length; i++) {
             const battle = battles[i];
             await this.dbcon.promise().query(`INSERT IGNORE INTO battlelog (battleid, totalkills, totalplayers, starttime, endtime) VALUES
@@ -116,8 +118,9 @@ class battlelog {
 
         for (var i = 0; i < killevents.length; i++) {
             const killevent = killevents[i];
-            console.log(killevent.starttime);
-            await this.dbcon.promise().query(`INSERT IGNORE INTO killevent (eventid, battleid, starttime, partymembercount, killercount, killarea) VALUES ('${killevent.eventid}', '${killevent.battleid}', '${killevent.starttime}', '${killevent.partymembercount}', '${killevent.killercount}', '${killevent.killarea}');`);
+            await this.dbcon.promise().query(`INSERT IGNORE INTO killevent (eventid, battleid, starttime, partymembercount, killercount, killarea) 
+            VALUES 
+            ('${killevent.eventid}', '${killevent.battleid}', '${killevent.timestamp}', '${killevent.partymembercount}', '${killevent.killercount}', '${killevent.killarea}');`);
         }
 
         for (var i = 0; i < players.length; i++) {
@@ -140,8 +143,13 @@ class battlelog {
                 VALUES 
                 ('${player.playerid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.damage}', '${player.heal}');`;
             }
-            await this.dbcon.promise().query(sql);
+            if (sql === ``) {
+                console.log(`${player} whois error`);
+            } else {
+                await this.dbcon.promise().query(sql);
+            }
         }
+        console.log(`db 업로드 완료`);
 
 
 
@@ -159,13 +167,35 @@ class battlelog {
             for (var i = 0; i < this.battleMax; i++) {
                 const battleboard = body_bb[i];
 
+                // 이미 존재하는지 확인
+                let [ret] = await this.dbcon.promise().query(`
+                SELECT * 
+                FROM battlelog 
+                WHERE battleid = ${parseInt(battleboard['id'])};`);
+                //console.log(ret[0]['battleid'])
+                if (ret[0] != undefined) {
+                    if (ret[0]['battleid'] === battleboard['id']) {
+                        //console.log(`${battleboard['id']} 중복 배제`);
+                        continue;
+                    }
+                }
+                if (parseInt(battleboard['totalKills'] > 20)) {
+                    console.log(`${battleboard['totalKills']} 킬수가 너무 많습니다.`);
+                    continue;
+                }
+
+
+
                 let battlelogs = new Object();
                 // TABLE battlelog
                 battlelogs.battleid = parseInt(battleboard['id']);
                 battlelogs.totalkills = parseInt(battleboard['totalKills']);
                 battlelogs.totalplayers = Object.keys(battleboard['players']).length;
-                battlelogs.starttime = new Date(battleboard['startTime']);
-                battlelogs.endtime = new Date(battleboard['endTime']);
+                battlelogs.starttime = new Date(battleboard['startTime']).toISOString().slice(0, 19).replace('T', ' ');;
+                battlelogs.endtime = new Date(battleboard['endTime']).toISOString().slice(0, 19).replace('T', ' ');;
+                //console.log(battlelogs.starttime);
+                //console.log(battlelogs.endtime);
+
                 battles.push(battlelogs);
 
 
@@ -176,35 +206,38 @@ class battlelog {
                 for (var j = 0; j < totaleventcount; j++) {
                     const eventboard = body_ev[j];
 
+                    /*
                     if (parseInt(eventboard['Victim']['AverageItemPower']) === 0) { // 평균 템렙이 0인 경우 = 버그 킬
-                        battlelogs.totalkills = battlelogs.totalKills - 1;
+                        battles[i].totalkills = battles[i].totalKills - 1;
                         continue;
                     }
+                    */
 
                     // killevent
                     var killevent = new Object();
                     killevent.eventid = parseInt(eventboard['EventId']);
                     killevent.battleid = parseInt(eventboard['BattleId']);
-                    killevent.timestamp = new Date(eventboard['TimeStamp']);
+                    killevent.timestamp = new Date(eventboard['TimeStamp']).toISOString().slice(0, 19).replace('T', ' ');;
                     killevent.partymembercount = parseInt(eventboard['groupMemberCount']);
                     killevent.killercount = Object.keys(eventboard['Participants']).length;
                     killevent.killarea = eventboard['KillArea'];
+                    //console.log(killevent.timestamp);
                     killevents.push(killevent);
 
                     // 킬을 먹은 유저 정보 (막타)
                     const lastkiller = eventboard['Killer'];
-                    players.push(this.process_player(lastkiller, 0));
+                    players.push(await this.process_player(lastkiller, 0));
 
                     // Participants로 부터 killer들의 정보를 추출
                     const totalkillercount = killevent.killercount;
                     for (var k = 0; k < totalkillercount; k++) {
                         const partiboard = eventboard['Participants'][k];
-                        players.push(this.process_player(partiboard, 2));
+                        players.push(await this.process_player(partiboard, 2));
                     }
 
                     // victim 정보 추출
                     const victim = eventboard['Victim'];
-                    players.push(this.process_player(victim, 1));
+                    players.push(await this.process_player(victim, 1));
                 }
             }
 
@@ -216,7 +249,24 @@ class battlelog {
         }
         return true;
     }
+    sleep = (ms) => {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms)
+        })
+    }
+
+    async updateINF() {
+        while (true) {
+            try {
+                await this.update();
+                await this.sleep(10000);
+
+            } catch (e) {
+                console.log(e);
+                break;
+            }
+        }
+    }
 }
 
-let bat = new battlelog();
-bat.update();
+exports.hellgatemodule = battlelog;
