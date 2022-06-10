@@ -23,6 +23,9 @@ client.on('interactionCreate', async interaction => {
     if (commandName === 'hellgate') {
         const hellgate = new hellgatecommand.hellgatemodule();
         let msg = await hellgate.check5v5hellgate1hour();
+        if (msg === ``) {
+            msg = `1시간 내 아무도 싸우지않았습니다.😥😥😥`;
+        }
 
         await interaction.reply(msg);
     }
