@@ -149,7 +149,8 @@ class battlelog {
                 await this.dbcon.promise().query(sql);
             }
         }
-        console.log(`db 업로드 완료`);
+        let time = new Date();
+        console.log(`[${time.toLocaleString()}] db 업로드 완료`);
 
 
 
