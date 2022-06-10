@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const { clientId, hellgate_guildId, BOT_TOKEN } = require('../../../config/discord_config.json');
 const battlemodule = require('./update_killboard');
 const hellgatecommand = require('./hellgate');
-const { hellgate } = require('../../main/discordbot/process');
 
 const client = new Discord.Client({
     intents: ["GUILDS", "GUILD_MESSAGES"]
