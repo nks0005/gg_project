@@ -48,7 +48,7 @@ class battlelog {
                     }
                 });
             });
-            request.setTimeout(50000, function() {
+            request.setTimeout(10000, function() {
                 reject(`${url} timeout`);
             });
             request.on('error', function(err) {
@@ -84,7 +84,7 @@ class battlelog {
         return parseInt(row.insertId);
     }
 
-    async process_player(kill, whois) {
+    async process_player(kill, whois, eventid) {
         let killer = new Object();
         killer.playerid = kill['Id'];
         killer.whois = whois;
@@ -93,6 +93,7 @@ class battlelog {
         killer.playername = kill['Name'];
         killer.guildname = kill['GuildName'];
         killer.alliancename = kill['AllianceName'];
+        killer.eventid = eventid;
 
         if (whois === 0) { // 막타 유저
             killer.killfame = kill['KillFame'];
@@ -129,19 +130,19 @@ class battlelog {
             var sql = ``;
             if (parseInt(player.whois) === 0) { // 막타 killfame
                 sql = `
-                INSERT IGNORE INTO player (playerid, whois, avgip, eqid, playername, guildname, alliancename, killfame)
+                INSERT IGNORE INTO player (playerid, eventid, whois, avgip, eqid, playername, guildname, alliancename, killfame)
                 VALUES 
-                ('${player.playerid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.killfame}');`;
+                ('${player.playerid}', '${player.eventid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.killfame}');`;
             } else if (parseInt(player.whois) === 1) { // victim deathfame
                 sql = `
-                INSERT IGNORE INTO player (playerid, whois, avgip, eqid, playername, guildname, alliancename, deathfame)
+                INSERT IGNORE INTO player (playerid, eventid, whois, avgip, eqid, playername, guildname, alliancename, deathfame)
                 VALUES 
-                ('${player.playerid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.deathfame}');`;
+                ('${player.playerid}', '${player.eventid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.deathfame}');`;
             } else if (parseInt(player.whois) === 2) { // part, damage heal
                 sql = `
-                INSERT IGNORE INTO player (playerid, whois, avgip, eqid, playername, guildname, alliancename, damage, heal)
+                INSERT IGNORE INTO player (playerid, eventid, whois, avgip, eqid, playername, guildname, alliancename, damage, heal)
                 VALUES 
-                ('${player.playerid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.damage}', '${player.heal}');`;
+                ('${player.playerid}', '${player.eventid}', '${player.whois}', '${player.avgip}', '${player.eqid}', '${player.playername}', '${player.guildname}', '${player.alliancename}', '${player.damage}', '${player.heal}');`;
             }
             if (sql === ``) {
                 console.log(`${player} whois error`);
@@ -227,18 +228,18 @@ class battlelog {
 
                     // 킬을 먹은 유저 정보 (막타)
                     const lastkiller = eventboard['Killer'];
-                    players.push(await this.process_player(lastkiller, 0));
+                    players.push(await this.process_player(lastkiller, 0, killevent.eventid));
 
                     // Participants로 부터 killer들의 정보를 추출
                     const totalkillercount = killevent.killercount;
                     for (var k = 0; k < totalkillercount; k++) {
                         const partiboard = eventboard['Participants'][k];
-                        players.push(await this.process_player(partiboard, 2));
+                        players.push(await this.process_player(partiboard, 2, killevent.eventid));
                     }
 
                     // victim 정보 추출
                     const victim = eventboard['Victim'];
-                    players.push(await this.process_player(victim, 1));
+                    players.push(await this.process_player(victim, 1, killevent.eventid));
                 }
             }
 

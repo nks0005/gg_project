@@ -41,7 +41,6 @@ class hellgate {
             const battleid = battlelog['battleid'];
             const battletime = battlelog['endtime'];
             const battlekillcount = battlelog['totalkills'];
-            console.log(battleid);
 
             // event에서 모든 유저의 킬에 파티원이 5명인지 확인
             sql = `
@@ -52,8 +51,27 @@ class hellgate {
             AND killarea = 'OPEN_WORLD'
             ;`;
             const [eventlogs] = await this.con.promise().query(sql);
-            console.log(`${battleid} | ${eventlogs.length} : ${battlekillcount}`);
-            if (eventlogs.length === battlekillcount)
+            let healer_check = 0;
+            let dealer_check = 0;
+
+            for (var j = 0; j < eventlogs.length; j++) {
+                const eventlog = eventlogs[j];
+                //console.log(eventlog['eventid']);
+                sql = `
+                SELECT *
+                FROM player
+                WHERE eventid = ${eventlog['eventid']};`;
+                let [playerlogs] = await this.con.promise().query(sql);
+                for (var k = 0; k < playerlogs.length; k++) {
+                    const playerlog = playerlogs[k];
+                    const heal = parseInt(playerlog['heal']);
+                    if (heal != NaN && heal > 0) healer_check++;
+                    else dealer_check++;
+                }
+            }
+
+            console.log(`${battleid} | ${eventlogs.length} : ${battlekillcount} : | ${healer_check} : ${battlekillcount}`);
+            if (eventlogs.length === battlekillcount && healer_check >= battlekillcount)
                 msg += `UTC시간 : ${battletime.toLocaleString()}\nhttps://albionbattles.com/battles/${battleid}\n`;
         }
 
