@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { clientId, hellgate_guildId, BOT_TOKEN } = require('../../../config/discord_config.json');
+const { clientId, hellgate_guildId, BOT_TOKEN } = require('./discord_config.json');
 const battlemodule = require('./update_killboard');
 const hellgatecommand = require('./hellgate');
 
@@ -18,7 +18,6 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     const battle = new battlemodule.hellgatemodule();
     battle.updateINF();
-
 });
 
 
@@ -29,12 +28,16 @@ client.on('interactionCreate', async interaction => {
 
     if (commandName === 'hellgate') {
         const hellgate = new hellgatecommand.hellgatemodule();
-        let msg = await hellgate.check5v5hellgate1hour();
+        await interaction.reply('처리중입니다.');
+        let msg = await hellgate.check5v5hellgate1hour(interaction);
         if (msg === ``) {
             msg = `1시간 내 아무도 싸우지않았습니다.😥😥😥`;
-        }
 
-        await interaction.reply(msg);
+        }
+        await interaction.editReply(msg);
+        //for (var i = 0; i < msg.length; i++) {
+        //    await interaction.reply(msg[i].msg);
+        //}
     }
 });
 

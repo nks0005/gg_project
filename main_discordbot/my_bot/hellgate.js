@@ -71,10 +71,10 @@ class hellgate {
             }
 
             console.log(`${battleid} | ${eventlogs.length} : ${battlekillcount} : | ${healer_check} : ${battlekillcount}`);
-            if (eventlogs.length === battlekillcount && healer_check >= battlekillcount)
+            if (eventlogs.length === battlekillcount && healer_check >= battlekillcount) {
                 msg += `UTC시간 : ${battletime.toLocaleString()}\nhttps://albionbattles.com/battles/${battleid}\n`;
+            }
         }
-
         return msg;
     }
 }
