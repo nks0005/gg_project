@@ -1,7 +1,7 @@
 // 데이터베이스에 주기적으로 킬보드를 업로드
 const https = require('https');
 const mysql2 = require('mysql2');
-
+const hellgatecommand = require('./hellgate');
 
 class battlelog {
 
@@ -13,7 +13,7 @@ class battlelog {
             database: 'my_bot'
         });
 
-        this.battleMax = 50;
+        this.battleMax = 25;
 
         this.urlBattlelog = `https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${this.battleMax}&sort=recent`;
     }
@@ -166,6 +166,8 @@ class battlelog {
             const players = new Array();
             const battles = new Array();
 
+            let pass = false;
+
             for (var i = 0; i < this.battleMax; i++) {
                 const battleboard = body_bb[i];
 
@@ -183,6 +185,7 @@ class battlelog {
                 }
                 if (parseInt(battleboard['totalKills'] > 20)) {
                     console.log(`${battleboard['totalKills']} 킬수가 너무 많습니다.`);
+                    pass = true;
                     continue;
                 }
 
@@ -193,8 +196,8 @@ class battlelog {
                 battlelogs.battleid = parseInt(battleboard['id']);
                 battlelogs.totalkills = parseInt(battleboard['totalKills']);
                 battlelogs.totalplayers = Object.keys(battleboard['players']).length;
-                battlelogs.starttime = new Date(battleboard['startTime']).toISOString().slice(0, 19).replace('T', ' ');;
-                battlelogs.endtime = new Date(battleboard['endTime']).toISOString().slice(0, 19).replace('T', ' ');;
+                battlelogs.starttime = new Date(battleboard['startTime']).toISOString().slice(0, 19).replace('T', ' ');
+                battlelogs.endtime = new Date(battleboard['endTime']).toISOString().slice(0, 19).replace('T', ' ');
                 //console.log(battlelogs.starttime);
                 //console.log(battlelogs.endtime);
 
@@ -244,7 +247,8 @@ class battlelog {
             }
 
             // db 입력
-            await this.processall_db(battles, killevents, players)
+            if (!pass)
+                await this.processall_db(battles, killevents, players)
 
         } catch (err) {
             console.log(err);
@@ -258,11 +262,12 @@ class battlelog {
     }
 
     async updateINF() {
+        const hellgate = new hellgatecommand.hellgatemodule();
         while (true) {
             try {
                 await this.update();
+                await hellgate.check5v5hellgate1hour();
                 await this.sleep(5000);
-
             } catch (e) {
                 console.log(e);
                 break;

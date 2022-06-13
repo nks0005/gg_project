@@ -30,7 +30,7 @@ class hellgate {
         // 전체 유저 수가 10명인 경우 + 킬수가 5킬 이상 + (한국 시간-10h) ~ (한국 시간-9h) 인지 여부
         let sql = `SELECT *
         FROM battlelog
-        WHERE totalplayers = 10 
+        WHERE totalplayers = 10 OR totalplayers = 9
         AND totalkills >= 5  AND totalkills <= 9
         AND endtime BETWEEN DATE_SUB(NOW(), INTERVAL 10 HOUR) AND DATE_SUB(NOW(), INTERVAL 9 HOUR)
         ;`;
@@ -71,10 +71,14 @@ class hellgate {
             }
 
             console.log(`${battleid} | ${eventlogs.length} : ${battlekillcount} : | ${healer_check} : ${battlekillcount}`);
-            if (eventlogs.length === battlekillcount && healer_check >= battlekillcount) {
+            if (eventlogs.length === battlekillcount && healer_check > 0) {
                 msg += `UTC시간 : ${battletime.toLocaleString()}\nhttps://albionbattles.com/battles/${battleid}\n`;
+                let endtime = new Date(battlelog['endtime']).toISOString().slice(0, 19).replace('T', ' ');;
+                // db에 등록
+                await this.con.promise().query(`INSERT IGNORE INTO hellgate55 (sendCheck, battleid) VALUES ('0', '${battleid}');`);
             }
         }
+        console.log(msg);
         return msg;
     }
 }

@@ -67,4 +67,11 @@ CREATE TABLE IF NOT EXISTS equiment(
     potion VARCHAR(255),
     food VARCHAR(255)
 ) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS hellgate55(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    sendCheck INT,
+    battleid INT NOT NULL,
+    endtime Datetime NOT NULL
+) ENGINE=InnoDB;
 ```
