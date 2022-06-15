@@ -263,11 +263,17 @@ class battlelog {
 
     async updateINF() {
         const hellgate = new hellgatecommand.hellgatemodule();
+        let count = 0;
         while (true) {
             try {
+                if (count == 5) {
+                    await hellgate.check5v5hellgate1hour();
+                    count = 0;
+                }
                 await this.update();
-                await hellgate.check5v5hellgate1hour();
+                //await hellgate.check5v5hellgate1hour();
                 await this.sleep(5000);
+                count++;
             } catch (e) {
                 console.log(e);
                 break;

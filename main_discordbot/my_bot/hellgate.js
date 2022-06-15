@@ -35,12 +35,16 @@ class hellgate {
         AND endtime BETWEEN DATE_SUB(NOW(), INTERVAL 10 HOUR) AND DATE_SUB(NOW(), INTERVAL 9 HOUR)
         ;`;
         const [battlelogs] = await this.con.promise().query(sql);
+
         for (var i = 0; i < battlelogs.length; i++) {
             const battlelog = battlelogs[i];
 
             const battleid = battlelog['battleid'];
             const battletime = battlelog['endtime'];
             const battlekillcount = battlelog['totalkills'];
+
+            const [checkhellgate] = await this.con.promise().query(`SELECT battleid FROM hellgate55 WHERE battleid = '${battleid}' `);
+            if (checkhellgate.length == 0) continue;
 
             // event에서 모든 유저의 킬에 파티원이 5명인지 확인
             sql = `
