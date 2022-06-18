@@ -53,9 +53,9 @@ class killboard {
                 });
 
 
-                // eventid | endtime | partymembercount | killarea
-                const param = [eventlog['EventId'], this.timestamp2datetime(eventlog['TimeStamp']), this.array2count(eventlog['GroupMembers']), eventlog['KillArea']];
-                const [ret] = await this.con.query(`INSERT IGNORE INTO eventlog (eventid, endtime, partymembercount, killarea) VALUES (?, ?, ?, ?);`, param);
+                // eventid | endtime | partymembercount | killarea | battleid
+                const param = [eventlog['EventId'], this.timestamp2datetime(eventlog['TimeStamp']), this.array2count(eventlog['GroupMembers']), eventlog['KillArea'], eventlog['BattleId']];
+                const [ret] = await this.con.query(`INSERT IGNORE INTO eventlog (eventid, endtime, partymembercount, killarea, battleid) VALUES (?, ?, ?, ?, ?);`, param);
             }
         }
         return [arrEventlog, arrEventlogJson];
@@ -154,9 +154,9 @@ class killboard {
             console.timeEnd('updateEventlog');
 
             // 전투로그-이벤트로그 연결
-            console.time('updateBattleEvent');
-            await this.updateBattleEvent(arrEventlog);
-            console.timeEnd('updateBattleEvent');
+            //console.time('updateBattleEvent');
+            //await this.updateBattleEvent(arrEventlog);
+            //console.timeEnd('updateBattleEvent');
 
             // 플레이어로그
             console.time('updatePlayerLog');

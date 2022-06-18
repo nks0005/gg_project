@@ -8,56 +8,50 @@ class hellgate {
 
     async check55hellgate() {
         try {
-            // 조건에 맞으면 hellgate55 테이블 넣음
-
-
-            // 전체 유저 수가 10명인 경우 + 킬수가 5킬 이상 + (한국 시간-10h) ~ (한국 시간-9h) 인지 여부
-            let sql = `SELECT *
-         FROM battlelog
-         WHERE totalplayercount = 10
-         AND totalkills >= 5  AND totalkills <= 9
-         AND endtime BETWEEN DATE_SUB(NOW(), INTERVAL 10 HOUR) AND DATE_SUB(NOW(), INTERVAL 9 HOUR)
-         ;`;
-            const [battlelogs] = await this.con.query(sql);
+            const [battlelogs] = await this.con.query(`SELECT * FROM battlelog WHERE totalplayercount = 10 AND totalkills >= 5 AND totalkills <= 9 AND endtime BETWEEN DATE_SUB(NOW(), INTERVAL 10 HOUR) AND DATE_SUB(NOW(), INTERVAL 9 HOUR)`);
+            console.log(battlelogs.length);
             for (const battlelog of battlelogs) {
-                const [check55hellgate] = await this.con.query(`SELECT * FROM hellgate55 WHERE battleid = '${battlelog['battleid']}';`);
-                if (check55hellgate.length > 0) continue;
+                const [hellgate] = await this.con.query(`SELECT * FROM hellgate55 WHERE battleid = '${battlelog['battleid']}'`);
+                console.log(`hellgate count : ${hellgate.length}`);
+                if (hellgate.length == 0) {
+                    console.log(`${battlelog['battleid']} 5v5 헬게이트를 발견했습니다. 1차`);
 
-                // event에서 partymember가 5명인 이벤트가 킬수 만큼 같아야 함
-                const killcount = battlelog['totalkills'];
-                let checkcount = 0;
-                // 힐러가 최소 1명은 있어야 함 = 킬수 이상 만큼 존재
-                let checkhealer = 0;
 
-                sql = `SELECT * FROM battlelog_eventlog WHERE battleid = '${battlelog['battleid']}';`;
-                const [eventids] = await this.con.query(sql);
-                for (const eventid of eventids) {
-                    sql = `SELECT * FROM eventlog WHERE eventid = '${eventid['eventid']}';`;
-                    const [eventlog] = await this.con.query(sql);
-                    if (eventlog[0]['killarea'] === 'OPEN_WORLD' && parseInt(eventlog[0]['partymembercount']) === 5) {
-                        checkcount++;
-                    }
+                    var healCount = 0; // 힐러 카운트
+                    var checkPartyCount = 0; // 파티 적합 카운트
+                    var ipCount = 0; // 아이템 레벨 적합 카운트
+                    const [eventlogs] = await this.con.query(`SELECT * FROM eventlog WHERE battleid = '${battlelog['battleid']}'`);
+                    for (const eventlog of eventlogs) {
+                        if (parseInt(eventlog['partymembercount']) === 5) {
+                            checkPartyCount++;
+                        }
 
-                    // 힐러 확인
-                    sql = `SELECT * FROM playerlog WHERE eventid = '${eventid['eventid']}' AND killtype = 2;`;
-                    const [playerlogs] = this.con.query(sql);
-                    for (const playerlog of playerlogs) {
-                        if (playerlog['heal'] != null) {
-                            checkhealer++;
+                        const [playerlogs] = await this.con.query(`SELECT * FROM playerlog WHERE eventid = '${eventlog['eventid']}'`);
+                        for (const playerlog of playerlogs) {
+                            if (playerlog['heal'] != undefined) {
+                                healCount++;
+                            }
+                            if (parseInt(playerlog['avgip']) <= 1450 && parseInt(playerlog['avgip']) >= 1100) // ip : 1100 < 1450
+                            {
+                                ipCount++;
+                            }
                         }
                     }
 
-
-                }
-                if (checkhealer >= killcount && checkcount == killcount) {
-                    await this.con.query(`INSERT IGNORE hellgate55 (checkvalue, battleid) VALUES (0, ${battelog['battleid']})`);
+                    // 마지막 비교
+                    if (checkPartyCount >= parseInt(battlelog['totalkills']) &&
+                        healCount >= 4 &&
+                        ipCount === parseInt(battlelog['totalkills'])
+                    ) {
+                        console.log(`${battlelog} 5v5 헬게이트를 발견했습니다. 최종`);
+                        await this.con.query(`INSERT IGNORE INTO hellgate55 (checkvalue, battleid) VALUES (0, ${battlelog['battleid']})`);
+                    }
                 }
             }
         } catch (err) {
             console.trace();
             console.error(`${err} 5v5 분석 도중 에러가 발생하였습니다.`);
-        }
+        } finally {}
     }
 }
-
 module.exports.hellgate = hellgate;

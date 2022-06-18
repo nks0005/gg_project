@@ -7,16 +7,12 @@ CREATE TABLE IF NOT EXISTS battlelog(
     endtime DATETIME NOT NULL -- 전투 종료 시간
 ) ENGINE=InnoDB;
 
-CREATE TABLE IF NOT EXISTS battlelog_eventlog( -- 배틀로그 1-N 이벤트로그 연결
-    battleid INT NOT NULL,
-    eventid INT PRIMARY KEY NOT NULL
-) ENGINE=InnoDB;
-
 CREATE TABLE IF NOT EXISTS eventlog(
     eventid INT PRIMARY KEY NOT NULL, -- 이벤트 식별자
     endtime DATETIME NOT NULL, -- 이벤트 발생 종료 시간
     partymembercount INT NOT NULL, -- 파티 인원 수
-    killarea VARCHAR(255) NOT NULL -- 크리스탈 or 오픈월드
+    killarea VARCHAR(255) NOT NULL, -- 크리스탈 or 오픈월드
+    battleid INT NOT NULL
 ) ENGINE=InnoDB;
 
 
@@ -42,6 +38,6 @@ CREATE TABLE IF NOT EXISTS playerlog(
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS hellgate55(
-    checkvalue INT NOT NULL,
+	checkvalue INT NOT NULL,
     battleid INT PRIMARY KEY NOT NULL
-)
+)ENGINE=InnoDB;
