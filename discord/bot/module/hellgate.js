@@ -9,12 +9,12 @@ class hellgate {
     async check55hellgate() {
         try {
             const [battlelogs] = await this.con.query(`SELECT * FROM battlelog WHERE totalplayercount = 10 AND totalkills >= 5 AND totalkills <= 9 AND endtime BETWEEN DATE_SUB(NOW(), INTERVAL 10 HOUR) AND DATE_SUB(NOW(), INTERVAL 9 HOUR)`);
-            console.log(battlelogs.length);
+            //console.log(battlelogs.length);
             for (const battlelog of battlelogs) {
                 const [hellgate] = await this.con.query(`SELECT * FROM hellgate55 WHERE battleid = '${battlelog['battleid']}'`);
-                console.log(`hellgate count : ${hellgate.length}`);
+                //console.log(`hellgate count : ${hellgate.length}`);
                 if (hellgate.length == 0) {
-                    console.log(`${battlelog['battleid']} 5v5 헬게이트를 발견했습니다. 1차`);
+                    //console.log(`${battlelog['battleid']} 5v5 헬게이트를 발견했습니다. 1차`);
 
 
                     var healCount = 0; // 힐러 카운트
@@ -31,18 +31,18 @@ class hellgate {
                             if (playerlog['heal'] != undefined) {
                                 healCount++;
                             }
-                            if (parseInt(playerlog['avgip']) <= 1450 && parseInt(playerlog['avgip']) >= 1100) // ip : 1100 < 1450
+                            if (parseInt(playerlog['avgip']) >= 1450 && parseInt(playerlog['avgip']) <= 1100 && parseInt(playerlog['avgip'] != 0)) // ip 가 이상하다.
                             {
                                 ipCount++;
                             }
                         }
                     }
 
+                    console.log(`${checkPartyCount} : ${battlelog['totalkills']} : ${healCount} : ${ipCount}`);
                     // 마지막 비교
                     if (checkPartyCount >= parseInt(battlelog['totalkills']) &&
                         healCount >= 4 &&
-                        ipCount === parseInt(battlelog['totalkills'])
-                    ) {
+                        ipCount < 0) {
                         console.log(`${battlelog} 5v5 헬게이트를 발견했습니다. 최종`);
                         await this.con.query(`INSERT IGNORE INTO hellgate55 (checkvalue, battleid) VALUES (0, ${battlelog['battleid']})`);
                     }

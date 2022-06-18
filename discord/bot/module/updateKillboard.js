@@ -42,7 +42,7 @@ class killboard {
         let arrEventlog = new Array();
         let arrEventlogJson = new Array();
         for (const battlelog of battlelogs) {
-            const eventlogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battlelog['id']}?offset=0&limit=${battlelog['totalKills']}`;
+            const eventlogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battlelog['id']}?offset=0&limit=51`;
             const eventlogs = await this.crawler.mustGetBodyByUrl(eventlogUrl);
             arrEventlogJson.push(eventlogs);
 
