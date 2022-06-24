@@ -22,6 +22,84 @@ class killboard {
         return Object.keys(array).length
     }
 
+    async updateEventLog(_arg) {
+        const { battlelog: { battleid, totalkills } } = _arg;
+        console.log(`updateEventLog battleid : ${battleid} | totalkills : ${totalkills}`);
+
+        const eventLogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battleid}?offset=0&limit=${totalkills}`;
+        const eventlogs = await this.crawler.mustGetBodyByUrl(eventLogUrl);
+
+
+        let arrEventlog = new Array();
+        let arrEventlogJson = new Array();
+        for (const battlelog of battlelogs) {
+            const eventlogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battlelog['id']}?offset=0&limit=${battlelog['totalKills']}`;
+            const eventlogs = await this.crawler.mustGetBodyByUrl(eventlogUrl);
+            arrEventlogJson.push(eventlogs);
+
+            for (const eventlog of eventlogs) {
+                arrEventlog.push({
+                    "eventid": eventlog['EventId'],
+                    "battleid": battlelog['id']
+                });
+
+
+                // eventid | endtime | partymembercount | killarea | battleid
+                const param = [eventlog['EventId'], this.timestamp2datetime(eventlog['TimeStamp']), this.array2count(eventlog['GroupMembers']), eventlog['KillArea'], eventlog['BattleId']];
+                const [ret] = await this.con.query(`INSERT IGNORE INTO eventlog (eventid, endtime, partymembercount, killarea, battleid) VALUES (?, ?, ?, ?, ?);`, param);
+            }
+        }
+        return [arrEventlog, arrEventlogJson];
+    }
+
+    async updateBattleLog(_battlelog) {
+        const battlelog = _battlelog;
+
+        const param = [battlelog['id'], battlelog['totalKills'], this.array2count(battlelog['players']), this.timestamp2datetime(battlelog['endTime'])];
+        const [ret] = await this.con.query(`INSERT IGNORE INTO battlelog (battleid, totalkills, totalplayercount, endtime) VALUES (?, ?, ?, ?);`, param);
+
+        await this.updateEventLog({
+            battlelog: {
+                battleid: battlelog['id'],
+                totalkills: battlelog['totalKills']
+            }
+        });
+    }
+
+
+
+    async updateAll(_battlelog) {
+        try {
+            await this.con.beginTransaction(); // db 트렌젝션 시작
+
+            const battlelog = _battlelog;
+            await this.updateBattleLog();
+
+
+
+
+            await this.con.commit(); // db 변동
+        } catch (err) {
+            await this.con.rollback(); // DB 변동 사항 없음
+        } finally {
+
+        }
+    }
+
+    async update() {
+        const battleMax = 20;
+        const battlelogUrl = `https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${battleMax}&sort=recent`;
+
+        const battlelogs = await this.crawler.mustGetBodyByUrl(battlelogUrl); // get json from url
+
+        for (const battlelog of battlelogs) {
+            const [check] = await this.con.query(`SELECT battleid FROM battlelog WHERE battleid = ${battlelog['id']};`);
+            if (check.length === 0)
+                updateAll(battlelog);
+            else console.log(`이미 존재합니다. ${check['battleid']}`);
+        }
+    }
+
     // 전투 로그 업데이트
     async updateBattlelog() {
 
@@ -42,7 +120,7 @@ class killboard {
         let arrEventlog = new Array();
         let arrEventlogJson = new Array();
         for (const battlelog of battlelogs) {
-            const eventlogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battlelog['id']}?offset=0&limit=51`;
+            const eventlogUrl = `https://gameinfo.albiononline.com/api/gameinfo/events/battle/${battlelog['id']}?offset=0&limit=${battlelog['totalKills']}`;
             const eventlogs = await this.crawler.mustGetBodyByUrl(eventlogUrl);
             arrEventlogJson.push(eventlogs);
 
@@ -174,3 +252,16 @@ class killboard {
 }
 
 module.exports.killboard = killboard;
+
+
+// 최적화 작업이 필요하다
+/*
+기존 방식
+동기적으로 20개씩 처리
+
+바뀔 방식
+비동기적으로 1개씩 총 20개 처리
+
+
+
+*/
