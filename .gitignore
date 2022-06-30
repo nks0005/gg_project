@@ -2,3 +2,4 @@
 /discord/bot/config
 /discord/bot/node_modules
 /server/node_modules
+/server/learn-express/node_modules
