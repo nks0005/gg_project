@@ -197,3 +197,127 @@ app.use(express.urlencoded({extended:false}));
 ```js
 app.use(express.static(path.join(__dirname, 'public')));
 ```
+> 자체적으로 정적 파일 라우터 기능을 수행하기에, 최대한 위쪽에 배치하는것이 좋다.
+
+# express-session
+> 세션 관리용 미들웨어이다. express-generator로는 설치되지 않는다.
+> npm i express-session
+
+```js
+var session = require('express-session');
+...
+var userRouter = require('./routers/users');
+
+app.use(cookieParser('secret code'));
+app.use(session({
+    resave: false,
+    saveUninitialized: false,
+    secret: 'secret code',
+    cookie: {
+        httpOnly: true,
+        secure: false,
+    }
+}));
+```
+> resave : 요청이 왔을 때 세션에 수정 사항이 생기지 않더라도 세션을 다시 저장할지에 대한 설정
+> saveUninitialized : 세션에 저장할 내역이 없더라도 세션을 저장할지에 대한 설정
+> secret : cookie-parser의 비밀키와 같은 역할
+    > express-session은 세션 관리 시 클라이언트에 쿠키를 보내는데, 이를 세션 쿠키라고 부르며, 안전하게 쿠키를 전송하려면 쿠키에 서명을 추가해야 하고, 쿠키를 서명하는 데 secret 값이 필요하다.
+
+> cookie 옵션은 세션 쿠키에 대한 설정. maxAge, domain, path, expires, sameSite, httpOnly, secure...
+> httpOnly : 클라이언트에서 쿠키를 확인하지 못하게
+> secure : https 환경에서
+> store : 이곳에 데이터베이스를 연결하여 세션을 유지. 레디스Redis가 자주 쓰인다.
+
+
+# 템플릿. PUG
+
+# 에러 처리 미들웨어
+> error 객체는 시스템 환경이 development가 아닌 경우에만 표시. 배포 환경인 경우에는 에러 메시지가 표시되지 않는다. 에러 메시지가 노출되면 보안에 취약해지기 때문이다.
+
+```js
+app.user(function(err, req, res, next){
+    res.locals.messgae = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    res.status(err.status || 500);
+    res.render('error');
+});
+```
+> 에러 처리 미들웨어는 error라는 템플릿 파일을 렌더링한다. 렌더링시 res.locals.message와 res.locals.error에 넣어준 값을 함께 렌더링한다.
+
+
+# Router 객체로 라우팅 분리하기
+> 라우팅을 깔끔하게 관리가 가능하다.
+> use 대신 get, post, put, patch, delete 같은 HTTP 메서드를 사용할 수 있다.
+```js
+app.use('/', function(req, res, next){
+    // '/' 주소 요청일 때 실행된다. HTTP 메서드는 상관없다.
+    next();
+});
+
+app.get('/', function(req, res, next){
+    // GET 메서드 '/' 주소의 요청일 때만 실행된다.
+    next();
+});
+
+app.post('/data', function(req, res, next){
+    // POST 메서드 '/data' 주소의 요청일 때만 실행된다.
+    next();
+});
+```
+
+## 라우터 하나에 여러 개 장착이 가능하다. 일반적으로 미들웨어 전에 로그인 여부 또는 관리자 여부를 체크하는 미들웨어를 중간에 넣어두곤 한다.
+```js
+router.get('/', middleware1, middleware2, middleware3);
+```
+
+## 라우터 주소에는 특수한 패턴을 사용할 수 있다.
+```js
+router.get('/user/:id', function(req, res){
+    console.log(req.params, req.query);
+});
+```
+> /users/123?limit=5&skip=10
+>> req:params : { id : '123' }
+>> req.query : { limit:'5', skip:'10' }
+
+>> 일반 라우터보다 뒤에 위치해야 한다. 다양한 라우터를 아우르는 와일드카드 역할을 하므로 일반 라우터보다 뒤에 있어야 다른 라우터들을 방해하지 않는다.
+
+## 클라이언트에게 응답
+> send, sendFile, json, redirect, render, ...
+```js
+res.send(버퍼 또는 문자열 또는 HTML 또는 JSON)
+res.sendFile(파일 경로)
+res.json(JSON 데이터)
+res.redirect(주소)
+res.render('템플릿 파일 경로', { 변수 })
+```
+
+> 기본적으로 200 HTTP 상태 코드를 응답.(res.redirect는 302). 직접 바꿀수도 있다. 
+```js
+res.status(404).send('Not Found');
+```
+
+
+## 마지막으로 라우터가 요청을 처리 못한다면?
+> 404 처리 미들웨어를 수행 후
+> 에러 처리 핸들러를 수행한다
+```js
+// 404 처리 미들웨어
+app.use(function(req, res, next){
+    next(createError(404));
+});
+
+// 에러 처리 핸들러
+app.use(function(err, req, res, next){
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page 
+    res.status(err.status || 500);
+    res.render('error');
+})
+
+```
