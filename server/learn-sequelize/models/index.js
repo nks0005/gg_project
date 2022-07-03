@@ -1,3 +1,4 @@
+/*
 'use strict';
 
 const fs = require('fs');
@@ -33,5 +34,30 @@ Object.keys(db).forEach(modelName => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+
+module.exports = db;
+*/
+
+// 위 부분은 에러가 발생한다. 
+
+const path = require('path');
+const Sequelize = require('sequelize');
+
+const env = process.env.NODE_ENV || 'development'
+const config = require(path.join(__dirname, '..', 'config', 'config.json'))[env];
+const db = {};
+
+const sequelize = new Sequelize(config.database, config.username, config.password, config);
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+// db 객체에 설정 => db 객체를 require하여 User와 Comment 모델에 접근할 수 있다.
+db.User = require('./user')(sequelize, Sequelize); // (sequelize, DataTypes)
+db.Comment = require('./comment')(sequelize, Sequelize);
+
+db.User.hasMany(db.Comment, { foreignkey: 'commenter', sourceKey: 'id' }); // 1:N
+db.Comment.belongsTo(db.User, { foreignKey: 'commenter', targetKey: 'id' }); // N:1
+
 
 module.exports = db;

@@ -4,3 +4,4 @@
 /server/node_modules
 /server/learn-express/node_modules
 /server/learn-sequelize/node_modules
+/server/learn-sequelize/config/config.json

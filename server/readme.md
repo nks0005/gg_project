@@ -350,4 +350,200 @@ CREATE TABLE nodejs.users(
 
 # 시퀄라이즈 Sequelize
 > 시퀄라이즈는 ORM; Object - relational Mapping으로 분류됨.
+> 자바스크립트 구문을 알아서 SQL로 바꿔준다.
+> express learn-sequelize --view=pug
+> cd learn-sequelize
+> npm i
+> npm i sequelize mysql2
+> npm i -g sequelize-cli : sequelize 커맨드를 사용하기 위해 전역 설치
+> sequelize init : config, models, migrations, seeders 폴더 생성
+
+
+# 모델 정의하기
+> MySQL에서 정의한 테이블을 시퀄라이즈에서도 정의해야한다. ORM
+> models/user.js
+
+> 시퀄라이즈는 알아서 id를 기본 키로 연결하므로, id 컬럼은 적어줄 필요가 없다.
+> 시쿨러이즈의 자료형
+    > VARCHAR : STRING
+    > INT : INTEGER,
+    > TINYINT : BOOLEAN
+    > DATETIME : DATE
+    > INTEGER.UNSIGNED : UNSIGNED 옵션이 적용된 INT. ZEROFILL 옵션을 넣고 싶다면 INTEGER.UNSIGNED.ZEROFILL
+
+> timestamps: false, // true면 createAt과 updateAt 칼럼을 추가한다. 
+> paranoid는 timestamps가 true여야 사용가능하며, paranoid를 true할 경우 deletedAt 칼럼이 추가된다. 이 경우 로우를 삭제하는 시퀄라이즈 명령을 내렸을 때 로우를 제거하는 대신 deleteAt에 제거된 날짜를 입력한다. 로우를 조회할 경우 deletedAt값이 null인 로우를 조회한다.
+    > deletedAt를 사용하는 이유는 백업을 위해서
+> underscored 옵션은 createdAt, updateAt, deletedAt 컬럼과 시퀄라이즈가 자동으로 생성하주는 관계 칼럼들의 이름을 스네이크케이스 형식으로 바꾸어준다.
+    > 스네이크케이스 변수 이름에 대문자 대신 _를 사용하는 방식으로. create_at, update_at, deleted_at가 된다.
+> tableName 옵션은 테이블 이름을 다른 것으로 설정하고 싶을 때 사용. 시퀄라이즈는 자동으로 define 메서드의 첫 번째 인자를 복수형으로 만들어 테이블 이름으로 사용한다.
+
+```sql
+CREATE TABLE nodejs.comments(
+	id INT NOT NULL AUTO_INCREMENT,
+    commenter INT NOT NULL,
+    comment VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT now(),
+    PRIMARY KEY(id),
+    INDEX commenter_idx (commenter ASC),
+    CONSTRAINT commenter FOREIGN KEY (commenter) REFERENCeS nodejs.users (id) ON DELETE CASCADE ON UPDATE CASCADE
+) COMMENT='댓글', DEFAULT CHARSET=utf8, ENGINE=InnoDB;
+```
+> CONSTRAINT [제약 조건 명] FOREIGN KEY [컬럼명] REFERENCES [참고하는 컬럼명]
+> 으로 외래키를 지정할 수 있다.
+
+> ON UPDATE, ON DELETE는 모두 CASCADE로 설정. 사용자 정보가 수정되거나 삭제되면 그것과 연결된 댓글 정보도 같이 수정하거나 삭제한다는 뜻
+
+> Comment 모델 : models/comment.js
+
+> config 수정
+    > operatorsAliases는 보안에 취약한 연산자를 사용할 지 여부를 설정하는 옵션
+
+> 이 설정은 process.env.NODE_ENV가 development일 때 적용된다. 배포할때는 production으로 설정
+
+
+# 관계 정의
+> 1:1, 1:N: N:M 관계
+## 시퀄라이즈에서 1:N 관계를 hasMany 라는 메서드로 표현
+> N:1는 belongsTo
+```js
+db.User.hasMany(db.Comment, { foreignkey: 'commenter', sourceKey: 'id' }); // 1:N
+db.Comment.belongsTo(db.User, { foreignKey: 'commenter', targetKey: 'id' }); // N:1
+```
+
+## 1:1
+> hasOne 메서드를 사용한다. 
+```js
+db.User.hasOne(db.Info, { foreignKey:'user_id', sourceKey:'id'});
+db.Info.belongsTo(db.User, { foreignKey:'user_id', targetKey:'id'});
+```
+
+## N:M
+> belongsToMany
+```js
+db.Post.belongsToMany(db.Hashtag, { through:'PostHashtag' });
+db.Hashtag.belongsToMany(db.Post, { through:'PostHashtag' });
+```
+> N:M에서는 데이터를 조회할 때 여러 단계를 거쳐야함. 노드 해시태그를 사용한 게시물을 조회하는 경우, 먼저 노드 해시 태그를 Hashtag 모델에서 조회하고, 가져온 태그의 아이디를 바탕으로 PostHashtag 모델에서 hasttagId가 1인 postId들을 찾아야함. 
+
+### 시퀄라이즈는 이 과정을 편하게 할 수 있도록 몇가지 메서드를 지원함
+```js
+async(req, res, next) => {
+    const tag = await Hashtag.find( { where: { title: '노드' } });
+    const posts = await tag.getPosts();
+};
+```
+
+
+# 시퀀스 INSERT
+```sql
+INSERT INTO nodejs.users (name, age, married, comment) VALUES ('zero', 24, 0, '자기소개1');
+```
+=> 
+```js
+const { User } = require('../models');
+User.create({
+    name: 'zero',
+    age: 24,
+    married: false, // 시퀄라이즈 모델에 정의한 자료형 대로 넣어야한다. 
+    comment: '자기소개1',
+});
+```
+> models 모듈에서 User 모델을 불러와 create 메서드를 사용하면 된다.
+
+> 로우를 조회. 모든 데이터를 조회 findAll
+SELECT * FROM nodejs.users;
+=>
+User.findAll ( {} );
+
+> users 테이블의 하나만 가져오는 SQL
+SELECT * FROM nodejs.users LIMIT 1;
+=>
+User.find( {} );
+
+
+> 원하는 컬럼만 가져올 수 있음. attributes 옵션을 사용
+SELECT name, married FROM nodejs.users;
+=>
+User.findAll( {
+    attributes: ['name', 'married'],
+});
+
+> where 옵션이 조건들을 나열하는 옵션.
+SELECT name, age FROM nodejs.users WHERE married = 1 AND age > 30;
+=>
+```js
+const { User, Sequelize: { Op } } = require('../models');
+User.findAll( {
+    attributes: ['name', 'age'],
+    where : {
+        married: 1,
+        age : { [Op.gt] : 30 },
+    },
+});
+```
+
+> Op.gt(초과), Op.gte(이상), Op.lt(미만), Op.lte(이하), Op.ne(같지 않음), Op.or(또는), Op.in(배열 요소 중 하나), Op.notIn(배열 요소와 모두 다름)
+SELECT id, name FROM users WHERE married = 0 OR age > 30;
+> Op.or 속성에 OR 연산을 적용할 쿼리들을 배열로 나열하면 된다.
+```js
+const { User, Sequelize: { Op } } = require('../models');
+User.findAll({
+    attributes : ['id', 'name'],
+    where: {
+        [Op.or] : [{
+            married: 0,
+        },
+        {
+            age :
+            {
+                [Op.gt]: 30
+            }
+        }],
+    },
+});
+```
+
+> 시퀄라이즈의 정렬 방식
+SELECT id, name FROM users ORDER BY age DESC;
+```js
+User.findAll({
+    attributes: ['id', 'name'],
+    order: [['age', 'DESC']],
+});
+```
+
+
+
+> 조회할 로우 개수를 설정
+> limit 옵션으로 설정
+> offset 속성도 가능
+SELECT id, name FROM users ORDER BY age DESC LIMIT 1;
+```js
+User.findAll({
+    attributes: ['id', 'name'],
+    order: ['age', 'DESC'],
+    limit: 1,
+    offset: 1,
+});
+```
+
+
+> 로우를 수정하는 쿼리
+UPDATE nodejs.users SET comment = '바꿀 내용' WHERE id = 2;
+```js
+User.update( {
+    comment:'바꿀 내용',
+}, {
+    where: { id:2 },
+});
+```
+
+> 로우 삭제
+DELETE FROM nodejs.users WHERE id = 2;
+```js
+User.destory({
+    where: {id : 2},
+});
+```
 
