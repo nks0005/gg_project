@@ -321,3 +321,33 @@ app.use(function(err, req, res, next){
 })
 
 ```
+
+# 데이터베이스
+> MySQL, NoSQL
+> 데이터베이스를 관리하는 시스템을 DBMS(데이터베이스 관리 시스템)
+```sql
+CREATE SCHEMA nodejs;
+use nodejs;
+
+CREATE TABLE nodejs.users(
+	id INT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(20) NOT NULL,
+    age INT UNSIGNED NOT NULL,
+    married TINYINT NOT NULL,
+    comment TEXT NULL,
+    created_at DATETIME NOT NULL DEFAULT now(),
+    PRIMARY KEY(id),
+    UNIQUE INDEX name_UNIQUE (name ASC)
+)COMMENT = '사용자 정보', DEFAULT CHARSET=utf8, ENGINE=InnoDB;
+```
+> UNIQUE INDEX : 해당 값이 고유해야 하는지에 대한 옵션. 인덱스 이름은 name_UNIQUE, name 컬럼을 오름차순 ASC. UNIQUE INDEX의 경우 데이터베이스가 별도로 컬럼을 관리하므로 조회 시 속도가 빨라진다. PRIMARY KEY는 자동으로 UNIQUE INDEX를 포함한다.
+
+
+
+```sql
+
+```
+
+# 시퀄라이즈 Sequelize
+> 시퀄라이즈는 ORM; Object - relational Mapping으로 분류됨.
+
