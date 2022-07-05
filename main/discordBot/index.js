@@ -1,5 +1,8 @@
 const { MessageEmbed, Client, Message } = require("discord.js"); // discord 봇 모듈
-const { clientId, guildId, botToken } = require('./config/config.json'); // 설정 값
+const { guildId, hellgate55ChannelId, botToken } = require('./config/config.json'); // 설정 값
+
+
+const Monitor = require('./modules/monitor');
 
 
 
@@ -15,10 +18,20 @@ const client = new Client({
 client.on('ready', () => {
     console.log(`Logged ${client.user.tag}`);
 
+    const monitor = new Monitor.modules(50, 5000);
+    monitor.updateCycle();
+
+
+
+
+
+    client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId).send();
 
 });
 
 client.login(botToken);
+
+
 
 (async() => {
     const update = new updatekillboard.killboard();

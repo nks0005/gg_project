@@ -99,7 +99,7 @@ router.get('/:battleid', async function(req, res, next) {
                 }
 
                 await transaction.commit();
-                res.status(201).send(id);
+                res.status(201).send(id.toString());
             } catch (err) {
                 console.log("error");
                 if (transaction) await transaction.rollback();
@@ -108,79 +108,5 @@ router.get('/:battleid', async function(req, res, next) {
         }
     }
 });
-/*
-const battleId = 12345678;
-const totalKills = 10;
-const totalPlayers = 20;
-const logTime = new Date();
-
-const eventId = 23456789;
-const partyMemberCount = 10;
-const killArea = "OPEN_WORLD";
-
-const userName = "wanthealcome";
-const guildName = "GOSTOP";
-const allianceName = "SLAP";
-const killType = 2;
-const damage = 1000;
-const heal = 20000;
-
-const avgIp = 1200;
-const mainHand = "Nature";
-const offHand = "MistCaller";
-const head = "graveGuard";
-const armor = "claricRobe";
-const shoes = "claricShoes";
-const cape = "lymhurst";
-const potion = "resist";
-
-let transaction;
-try {
-    transaction = await sequelize.transaction();
-    let result = await Battlelogs.create({
-        battleId: battleId,
-        totalKills: totalKills,
-        totalPlayers: totalPlayers,
-        logTime: logTime
-    }, { transaction });
-
-    result = await Eventlogs.create({
-        eventId: eventId,
-        partyMemberCount: partyMemberCount,
-        killArea: killArea,
-        battleId: battleId
-    }, { transaction });
-
-    result = await Playerlogs.create({
-        userName: userName,
-        guildName: guildName,
-        allianceName: allianceName,
-        killType: killType,
-        damage: damage,
-        heal: heal,
-        avgIp: avgIp,
-        mainHand: mainHand,
-        offHand: offHand,
-        head: head,
-        armor: armor,
-        shoes: shoes,
-        cape: cape,
-        eventId: eventId
-
-    }, { transaction });
-
-    console.log(result);
-    res.status(201).json(result);
-    //res.render('index', { title: 'Express' });
-
-    await transaction.commit();
-} catch (err) {
-    console.log(err);
-    if (transaction) await transaction.rollback();
-}
-
-
-});
-*/
 
 module.exports = router;

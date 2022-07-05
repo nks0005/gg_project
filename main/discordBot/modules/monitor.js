@@ -5,8 +5,6 @@ class monitor {
     constructor(battleMax, timeCycle) {
         this.battleMax = battleMax;
         this.timeCycle = timeCycle;
-        this.newCursor = '';
-        this.oldCursor = '';
     }
 
     async sleep(ms) {
@@ -15,8 +13,48 @@ class monitor {
         });
     }
 
-    async check55Hellgate(battlelog) {
-        // 10명 
+    array2count(array) {
+        return parseInt(Object.keys(array).length);
+    }
+
+    timestamp2datetime(timestamp) {
+        return new Date(timestamp).toISOString().slice(0, 19).replace('T', ' ');
+    }
+
+    equip2Type(Equip) {
+        if (Equip == null) return Equip;
+        return Equip['Type'];
+    }
+
+    async check55Hellgate(battlelogs) {
+        const { id, totalKills, players } = battlelogs;
+        const totalPlayers = this.array2count(players);
+
+        if (totalPlayers == 10 && totalKills >= 4 && totalKills < 10) {
+            let eventlogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/events/battle/${id}?offset=0&limit=${totalKills}`);
+
+            var healer = 0;
+            var party = 0;
+            var item = 0;
+
+            for (const eventlog of eventlogs.data) {
+                // 파티 확인
+                if (this.array2count(eventlog['GroupMembers']) === 5) party++;
+
+                // 힐 딜 확인
+                for (const support of eventlog['Participants']) {
+                    if (support['SupportHealingDone'] > 0) healer++;
+                    if (support['AverageItemPower'] != 0 && support['AverageItemPower'] < 1100 || support['AverageItemPower'] > 1430) item++;
+                }
+            }
+            //console.log(`${id} = ${party} : ${totalKills} | ${healer} | ${item}`);
+            if (party >= totalKills && healer > 0 && item == 0) {
+                //console.log(`${id} = ${party} : ${totalKills} | ${healer} | ${item}`);
+                return true;
+            }
+        }
+        return false;
+
     }
 
     async check1010Hellgate(battlelog) {
@@ -30,11 +68,12 @@ class monitor {
             if (result.status == 200 && result.data != null) {
                 for (const battlelog of result.data) {
                     //this.cursor = battlelog['id'];
-                    axios.get(`http://localhost:3000/${battlelog['id']}`).then((res) => {
-                        if (res.status == 201)
-                            console.log(res.status + ", " + res.data);
-
-                    });
+                    if (await this.check55Hellgate(battlelog)) {
+                        await axios.get(`http://localhost:3000/${battlelog['id']}`).then((res) => {
+                            if (res.status == 201)
+                                console.log(res.status + ", " + res.data);
+                        });
+                    }
                 }
             } else {
                 console.log(result.status);
@@ -49,16 +88,13 @@ class monitor {
 
     async updateCycle() {
         while (true) {
-            console.time('start');
+            var newDate = new Date().toLocaleTimeString();
+            console.time(newDate);
             await this.update();
 
             await this.sleep(this.timeCycle);
-            console.timeEnd('start');
+            console.timeEnd(newDate);
         }
     }
 }
-
-const test = new monitor(50, 5000);
-test.updateCycle();
-
-exports.module = monitor;
+exports.modules = monitor;
