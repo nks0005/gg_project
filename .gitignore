@@ -7,3 +7,5 @@
 /server/learn-sequelize/config/config.json
 /main/server/node_modules
 /main/server/config
+/main/discordBot/node_modules
+/main/discordBot/config

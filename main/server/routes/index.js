@@ -46,15 +46,15 @@ async function createPlayerlog(json, eventId, killType, Playerlogs, transaction)
 
 // battleid 값을 받으면 크롤링과 DB에 업데이트를 진행한다.
 router.get('/:battleid', async function(req, res, next) {
-    console.log(req.params.battleid);
+    //console.log(req.params.battleid);
     const battleId = req.params.battleid;
-    if (battleId != undefined) {
+    if (battleId != undefined && parseInt(battleId) == battleId) {
         // 이미 존재하는지 확인
         let check = await Battlelogs.findAll({
             attributes: ['battleId'],
             where: { battleId: parseInt(battleId) }
         });
-        console.log(check.length);
+        //console.log(check.length);
         if (check.length > 0) { res.status(202).send("Exists"); } else {
 
             let transaction;
@@ -63,7 +63,7 @@ router.get('/:battleid', async function(req, res, next) {
 
                 let battlelogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles/${battleId}`);
                 const { id, totalKills, players, endTime } = battlelogs.data;
-                console.log(`id = ${id}, totalKills = ${totalKills}, players = ${array2count(players)}, endTime = ${timestamp2datetime(endTime)}`);
+                //console.log(`id = ${id}, totalKills = ${totalKills}, players = ${array2count(players)}, endTime = ${timestamp2datetime(endTime)}`);
 
                 await Battlelogs.create({
                     battleId: id,
@@ -99,7 +99,7 @@ router.get('/:battleid', async function(req, res, next) {
                 }
 
                 await transaction.commit();
-                res.status(201).send("OK");
+                res.status(201).send(id);
             } catch (err) {
                 console.log("error");
                 if (transaction) await transaction.rollback();
