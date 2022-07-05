@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/:id', function(req, res, next) {
     Comment.findAll({
         include: {
-            model: User,
+            attributes: ['battleId'],
             where: { id: req.params.id },
         },
     }).then((comments) => {
