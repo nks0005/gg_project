@@ -6,7 +6,6 @@ var { Battlelogs, Eventlogs, Playerlogs, sequelize, Sequelize: { Op } } = requir
 var router = express.Router();
 
 router.get('/', async function(req, res, next) {
-    console.log('?');
     try {
         const ret = await Battlelogs.findAll({
             include: [{
@@ -18,7 +17,6 @@ router.get('/', async function(req, res, next) {
             where: { send: null },
             limit: 1
         });
-        console.log(ret.length);
         if (ret.length) {
             res.status(201).send(ret);
         } else {
