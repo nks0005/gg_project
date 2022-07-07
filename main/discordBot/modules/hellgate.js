@@ -23,7 +23,7 @@ class hellgate {
         const { battleId, logTime } = data;
 
         var date = new Date(logTime).getTime();
-        date += (9 * 60 * 60 * 1000);
+        date += (18 * 60 * 60 * 1000);
 
         hellgateEmbed.setColor('#0099ff')
             .setTitle(`https://albionbattles.com/battles/${battleId}`)
@@ -33,7 +33,7 @@ class hellgate {
             //.addField('Inline field title', 'Some value here', true)
             //.setImage('https://i.imgur.com/AfFp7pu.png')
             .setTimestamp(this.timestamp2datetime(new Date(date)))
-            .setFooter({ text: 'UTC time : ', iconURL: 'https://i.imgur.com/SR04reG.jpeg' });
+            .setFooter({ text: '한국 시간 : ', iconURL: 'https://i.imgur.com/SR04reG.jpeg' });
 
 
 
@@ -53,8 +53,12 @@ class hellgate {
                     arrMsg[offset] = `⚔️${userName}(${avgIp})🔥(${damage})❤️(${heal})\n`;
                 }
             }
+            let support = ``;
+            for (var i = 2; i < offsetSupport; i++)
+                support += arrMsg[i];
+            if (support == ``) support = `?`;
 
-            hellgateEmbed.addField(`${arrMsg[0]}🗡️${arrMsg[1]}`, `${arrMsg[2]}${arrMsg[3]}${arrMsg[4]}`, false);
+            hellgateEmbed.addField(`${arrMsg[0]}🗡️${arrMsg[1]}`, support, false);
         }
 
         this.channel.send({ embeds: [hellgateEmbed] });
