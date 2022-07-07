@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var hellgateRouter = require('./routes/hellgate');
 
 var sequelize = require('./models/index.js').sequelize; // mysql sequelize 사용하기 위해
 
@@ -23,7 +23,9 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 //app.use(express.static(path.join(__dirname, 'public')));
 
+app.use('/hellgate', hellgateRouter);
 app.use('/', indexRouter);
+
 //app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler

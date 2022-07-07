@@ -2,7 +2,6 @@ var express = require('express');
 var axios = require('axios');
 
 var { Battlelogs, Eventlogs, Playerlogs, sequelize, Sequelize: { Op } } = require('../models');
-const playerlogs = require('../models/playerlogs');
 
 var router = express.Router();
 
@@ -102,11 +101,11 @@ router.get('/:battleid', async function(req, res, next) {
                 res.status(201).send(id.toString());
             } catch (err) {
                 console.log("error");
+                res.status(501).send('err');
                 if (transaction) await transaction.rollback();
                 next(err);
             }
         }
     }
 });
-
 module.exports = router;

@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { default: Undici } = require('undici');
 
 class monitor {
     constructor(battleMax, timeCycle) {
@@ -70,8 +69,10 @@ class monitor {
                     //this.cursor = battlelog['id'];
                     if (await this.check55Hellgate(battlelog)) {
                         await axios.get(`http://localhost:3000/${battlelog['id']}`).then((res) => {
-                            if (res.status == 201)
-                                console.log(res.status + ", " + res.data);
+                            if (res.status == 201) {
+                                var newDate = new Date().toLocaleTimeString();
+                                console.log(`${newDate} : ${res.status}, ${res.data}`);
+                            }
                         });
                     }
                 }
@@ -87,13 +88,18 @@ class monitor {
     }
 
     async updateCycle() {
-        while (true) {
-            var newDate = new Date().toLocaleTimeString();
-            console.time(newDate);
-            await this.update();
 
-            await this.sleep(this.timeCycle);
-            console.timeEnd(newDate);
+        while (true) {
+            try {
+                //var newDate = new Date().toLocaleTimeString();
+                //console.time(newDate);
+                await this.update();
+
+                await this.sleep(this.timeCycle);
+                //console.timeEnd(newDate);
+            } catch (err) {
+                console.error(err);
+            }
         }
     }
 }

@@ -22,7 +22,14 @@ module.exports = (sequelize, DataTypes) => {
             logTime: { // 종료 시간
                 type: DataTypes.DATE,
                 allowNull: false,
+            },
+
+            send: {
+                type: DataTypes.BOOLEAN,
+                allowNull: true
             }
+
+
         },
 
         {

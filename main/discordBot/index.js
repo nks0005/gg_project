@@ -1,8 +1,9 @@
-const { MessageEmbed, Client, Message } = require("discord.js"); // discord 봇 모듈
+const { Client } = require("discord.js"); // discord 봇 모듈
 const { guildId, hellgate55ChannelId, botToken } = require('./config/config.json'); // 설정 값
 
 
 const Monitor = require('./modules/monitor');
+const Hellgate = require('./modules/hellgate');
 
 
 
@@ -12,7 +13,11 @@ const client = new Client({
     intents: ["GUILDS", "GUILD_MESSAGES"]
 }); // 사용 목적 고지
 
-
+async function sleep(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
+}
 
 
 client.on('ready', () => {
@@ -21,12 +26,8 @@ client.on('ready', () => {
     const monitor = new Monitor.modules(50, 5000);
     monitor.updateCycle();
 
-
-
-
-
-    client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId).send();
-
+    const hellgate = new Hellgate.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
+    hellgate.updateCycle();
 });
 
 client.login(botToken);
