@@ -36,13 +36,16 @@ class hellgate {
             .setFooter({ text: '한국 시간 : ', iconURL: 'https://i.imgur.com/SR04reG.jpeg' });
 
 
-
+        let highUser = false;
         for (const eventlog of data['eventlogs']) {
             let offsetSupport = 2;
             let arrMsg = [{}, ];
             for (const playerlog of eventlog['playerlogs']) {
                 const { userName, killType, damage, heal, avgIp } = playerlog;
                 let offset = 0;
+
+                if (avgIp > 1320)
+                    highUser = true;
 
                 if (killType == 0) {
                     arrMsg[killType] = `${userName}(${avgIp})`;
@@ -62,6 +65,9 @@ class hellgate {
         }
 
         this.channel.send({ embeds: [hellgateEmbed] });
+
+        if (highUser)
+            this.channel.send(`높은 기어 유저가 있습니다! @here`);
     }
 
     async reSend(battleId) {
