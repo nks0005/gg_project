@@ -38,7 +38,8 @@ client.on('interactionCreate', async interaction => {
     const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 10);
 
     if (commandName === 'search') {
-        statistics.update()
+        await interaction.reply('검색 중...');
+        await statistics.update();
     }
 });
 
