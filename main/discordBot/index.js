@@ -24,6 +24,7 @@ async function sleep(ms) {
 client.on('ready', () => {
     console.log(`Logged ${client.user.tag}`);
 
+
     const monitor = new Monitor.modules(50, 5000);
     monitor.updateCycle();
 

@@ -35,21 +35,26 @@ class hellgate {
             .setTimestamp(this.timestamp2datetime(new Date(date)))
             .setFooter({ text: '한국 시간 : ', iconURL: 'https://i.imgur.com/SR04reG.jpeg' });
 
-
         let highUser = false;
+        let judgeBoots = false;
         for (const eventlog of data['eventlogs']) {
+            let zeroIpCheck = false;
             let offsetSupport = 2;
             let arrMsg = [{}, ];
             for (const playerlog of eventlog['playerlogs']) {
-                const { userName, killType, damage, heal, avgIp } = playerlog;
+                const { userName, killType, damage, heal, avgIp, shoes } = playerlog;
                 let offset = 0;
 
                 if (avgIp > 1320)
                     highUser = true;
 
+                if (shoes.includes(`SHOES_PLATE_KEEPER`))
+                    judgeBoots = true;
+
                 if (killType == 0) {
                     arrMsg[killType] = `${userName}(${avgIp})`;
                 } else if (killType == 1) {
+                    if (avgIp == 0) zeroIpCheck = true;
                     arrMsg[killType] = `${userName}(${avgIp})`;
                 } else if (killType == 2) {
                     offset = offsetSupport++;
@@ -61,13 +66,15 @@ class hellgate {
                 support += arrMsg[i];
             if (support == ``) support = `?`;
 
-            hellgateEmbed.addField(`${arrMsg[0]}🗡️${arrMsg[1]}`, support, false);
+            if (!zeroIpCheck)
+                hellgateEmbed.addField(`${arrMsg[0]}🗡️${arrMsg[1]}`, support, false);
         }
-
         this.channel.send({ embeds: [hellgateEmbed] });
 
-        if (highUser)
-            this.channel.send(`높은 기어 유저가 있습니다! @here`);
+        if (judgeBoots)
+            this.channel.send(`심판관 부츠 유저가 있습니다! <@&995137308732960778>`); // @Alarm
+        else if (highUser)
+            this.channel.send(`높은 기어 유저가 있습니다! <@&995137308732960778>`); // @Alarm
     }
 
     async reSend(battleId) {
