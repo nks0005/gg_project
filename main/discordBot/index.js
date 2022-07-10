@@ -30,7 +30,7 @@ client.on('ready', () => {
     monitor.updateCycle();
 
     const hellgate = new Hellgate.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
-    //hellgate.updateCycle();
+    hellgate.updateCycle();
 });
 
 client.on('interactionCreate', async interaction => {

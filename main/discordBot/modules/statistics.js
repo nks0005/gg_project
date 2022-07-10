@@ -36,6 +36,7 @@ class statistics {
                 this.channel.send('오류');
             }
         } catch (err) {
+            this.channel.send('에러');
             console.error(err);
         }
     }

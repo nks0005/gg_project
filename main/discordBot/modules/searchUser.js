@@ -26,10 +26,11 @@ class searchUser {
 
             } else if (ret.status == 202) {
                 console.log("통계 조사 중 202 에러");
-                this.channel.send('오류');
+                this.channel.send(`${userName} 검색 결과가 없습니다.`);
             }
         } catch (err) {
             console.error(err);
+            this.channel.send('오류. Wanthealcome에게 문의해주세요');
         }
     }
 }
