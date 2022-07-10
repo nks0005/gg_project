@@ -1,10 +1,11 @@
 const { Client } = require("discord.js"); // discord 봇 모듈
-const { guildId, hellgate55ChannelId, statisticsChannelId, botToken } = require('./config/config.json'); // 설정 값
+const { guildId, hellgate55ChannelId, statisticsChannelId, usersearchChannelId, botToken } = require('./config/config.json'); // 설정 값
 
 
 const Monitor = require('./modules/monitor');
 const Hellgate = require('./modules/hellgate');
 const Statistics = require('./modules/statistics');
+const SearchUser = require('./modules/searchUser');
 
 
 
@@ -29,7 +30,7 @@ client.on('ready', () => {
     monitor.updateCycle();
 
     const hellgate = new Hellgate.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
-    hellgate.updateCycle();
+    //hellgate.updateCycle();
 });
 
 client.on('interactionCreate', async interaction => {
@@ -37,10 +38,17 @@ client.on('interactionCreate', async interaction => {
 
     const { commandName } = interaction;
     const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 24);
+    const searchUser = new SearchUser.modules(client.guilds.cache.get(guildId).channels.cache.get(usersearchChannelId));
 
     if (commandName === 'search') {
         await interaction.reply('검색 중...');
         await statistics.update();
+    }
+
+    if (commandName === 'user55') {
+        const userName = interaction.options.getString('user_name');
+        await interaction.reply('전적 검색 중...');
+        await searchUser.update(userName);
     }
 });
 
