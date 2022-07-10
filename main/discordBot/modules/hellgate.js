@@ -43,14 +43,13 @@ class hellgate {
             let offsetSupport = 2;
             let arrMsg = [{}, ];
             for (const playerlog of eventlog['playerlogs']) {
-                const { userName, killType, damage, heal, avgIp, shoes } = playerlog;
+                const { userName, killType, damage, heal, avgIp, shoes, killArea } = playerlog;
                 let offset = 0;
 
                 if (avgIp > 1320)
                     highUser = true;
 
-
-                console.log(shoes);
+                //console.log(shoes);
                 if (shoes != null) {
                     var strShoes = `${shoes}`;
                     if (strShoes.includes(`SHOES_PLATE_KEEPER`))
@@ -83,7 +82,7 @@ class hellgate {
         if (highUser)
             msgAlarm += `높은 기어 유저가 있습니다! <@&995137308732960778>\n`;
 
-        if (msgAlram != ``)
+        if (msgAlarm != ``)
             this.channel.send(msgAlarm);
     }
 
