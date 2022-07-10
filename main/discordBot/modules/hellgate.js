@@ -38,8 +38,13 @@ class hellgate {
         let highUser = false;
         let judgeBoots = false;
 
+        // 3번 필터
         let mohomax = false;
         let howryou = false;
+
+        // 4번 필터
+        let dagger = false;
+        let hellHead = false;
 
         let msgAlarm = ``;
         for (const eventlog of data['eventlogs']) {
@@ -47,7 +52,7 @@ class hellgate {
             let offsetSupport = 2;
             let arrMsg = [{}, ];
             for (const playerlog of eventlog['playerlogs']) {
-                const { userName, killType, damage, heal, avgIp, shoes, killArea } = playerlog;
+                const { userName, killType, damage, heal, avgIp, shoes, killArea, mainHand, head } = playerlog;
                 let offset = 0;
 
                 if (avgIp > 1320)
@@ -58,6 +63,18 @@ class hellgate {
                     var strShoes = `${shoes}`;
                     if (strShoes.includes(`SHOES_PLATE_KEEPER`))
                         judgeBoots = true;
+                }
+
+                if (mainHand != null) {
+                    var strMainHand = `${mainHand}`;
+                    if (strMainHand.includes(`MAIN_DAGGER`))
+                        dagger = true;
+                }
+
+                if (head != null) {
+                    var strHead = `${head}`;
+                    if (strHead.includes(`HEAD_LEATHER_HELL`))
+                        hellHead = true;
                 }
 
                 if (userName === 'mohomax')
@@ -97,6 +114,9 @@ class hellgate {
 
         if (howryou)
             msgAlarm += `howryou 유저가 있습니다! <@&995632741108432896>\n`;
+
+        if (dagger && hellHead)
+            msgAlarm += `토단 유저가 있습니다! <&995635540613398538>\n`;
 
         if (msgAlarm != ``)
             this.channel.send(msgAlarm);
