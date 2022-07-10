@@ -17,7 +17,18 @@ class statistics {
                 hellgateEmbed.setColor('#0099ff')
                     .setTitle(`${this.hour} 시간 내 통계 입니다.`)
 
-                .addField(`판수 : `, `${ret.data.length}`, false);
+                .addField(`총판수 : `, `${ret.data.length}`, false);
+
+                //
+                let arrTime = new Array(24).fill(0);
+                for (const playerlog of ret.data) {
+                    const hour = parseInt(new Date(playerlog['createdAt']).getHours());
+                    arrTime[hour] += 1;
+                }
+
+                for (var i = 0; i < arrTime.length; i++) {
+                    hellgateEmbed.addField(`${i}시 : `, `${arrTime[i]} 판이 진행되었습니다.`, false);
+                }
 
                 this.channel.send({ embeds: [hellgateEmbed] });
             } else if (ret.status == 202) {

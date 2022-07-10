@@ -78,10 +78,10 @@ class hellgate {
         this.channel.send({ embeds: [hellgateEmbed] });
 
         if (judgeBoots)
-            msgAlarm += `심판관 부츠 유저가 있습니다! <@&995632668974788659>`;
+            msgAlarm += `심판관 부츠 유저가 있습니다! <@&995632668974788659>\n`;
 
         if (highUser)
-            msgAlarm += `높은 기어 유저가 있습니다! <@&995137308732960778>`;
+            msgAlarm += `높은 기어 유저가 있습니다! <@&995137308732960778>\n`;
 
         if (msgAlram != ``)
             this.channel.send(msgAlarm);
