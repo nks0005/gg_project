@@ -37,6 +37,7 @@ class hellgate {
 
         let highUser = false;
         let judgeBoots = false;
+        let msgAlarm = ``;
         for (const eventlog of data['eventlogs']) {
             let zeroIpCheck = false;
             let offsetSupport = 2;
@@ -48,8 +49,13 @@ class hellgate {
                 if (avgIp > 1320)
                     highUser = true;
 
-                if (shoes.includes(`SHOES_PLATE_KEEPER`))
-                    judgeBoots = true;
+
+                console.log(shoes);
+                if (shoes != null) {
+                    var strShoes = `${shoes}`;
+                    if (strShoes.includes(`SHOES_PLATE_KEEPER`))
+                        judgeBoots = true;
+                }
 
                 if (killType == 0) {
                     arrMsg[killType] = `${userName}(${avgIp})`;
@@ -72,9 +78,13 @@ class hellgate {
         this.channel.send({ embeds: [hellgateEmbed] });
 
         if (judgeBoots)
-            this.channel.send(`심판관 부츠 유저가 있습니다! <@&995137308732960778>`); // @Alarm
-        else if (highUser)
-            this.channel.send(`높은 기어 유저가 있습니다! <@&995137308732960778>`); // @Alarm
+            msgAlarm += `심판관 부츠 유저가 있습니다! <@&995632668974788659>`;
+
+        if (highUser)
+            msgAlarm += `높은 기어 유저가 있습니다! <@&995137308732960778>`;
+
+        if (msgAlram != ``)
+            this.channel.send(msgAlarm);
     }
 
     async reSend(battleId) {
