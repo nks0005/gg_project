@@ -15,7 +15,7 @@ class statistics {
                 let hellgateEmbed = new MessageEmbed();
 
                 hellgateEmbed.setColor('#0099ff')
-                    .setTitle(`${this.hour} 시간 내 통계 입니다.`)
+                    .setTitle(`${this.hour} 시간 내 통계 입니다. UTC 기준입니다.`)
 
                 .addField(`총판수 : `, `${ret.data.length}`, false);
 
@@ -27,7 +27,7 @@ class statistics {
                 }
 
                 for (var i = 0; i < arrTime.length; i++) {
-                    hellgateEmbed.addField(`${i}시 : `, `${arrTime[i]} 판이 진행되었습니다.`, false);
+                    hellgateEmbed.addField(`${i}시 : `, `${arrTime[i]} 판이 진행되었습니다.`, true);
                 }
 
                 this.channel.send({ embeds: [hellgateEmbed] });
