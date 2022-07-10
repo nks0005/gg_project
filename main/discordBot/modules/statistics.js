@@ -1,6 +1,8 @@
 const axios = require('axios');
 const { MessageEmbed } = require("discord.js");
 
+const QuickChart = require('quickchart-js');
+
 class statistics {
     constructor(Channel, Hour) {
         this.hour = Hour;
@@ -31,6 +33,26 @@ class statistics {
                 }
 
                 this.channel.send({ embeds: [hellgateEmbed] });
+
+                const chart = new QuickChart();
+                chart.setConfig({
+                    type: 'line',
+                    data: {
+                        labels: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23'],
+                        datasets: [{
+                            label: '5v5',
+                            data: [
+                                arrTime[0], arrTime[1], arrTime[2], arrTime[3], arrTime[4], arrTime[5], arrTime[6], arrTime[7], arrTime[8],
+                                arrTime[9], arrTime[10], arrTime[11], arrTime[12], arrTime[13], arrTime[14], arrTime[15], arrTime[16], arrTime[17],
+                                arrTime[18], arrTime[19], arrTime[20], arrTime[21], arrTime[22], arrTime[23], arrTime[24]
+                            ]
+                        }]
+                    },
+                });
+                const url = await chart.getShortUrl();
+
+                this.channel.send(`그래프 ${url}`);
+
             } else if (ret.status == 202) {
                 console.log("통계 조사 중 202 에러");
                 this.channel.send('오류');

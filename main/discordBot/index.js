@@ -9,8 +9,6 @@ const SearchUser = require('./modules/searchUser');
 
 
 
-
-
 const client = new Client({
     intents: ["GUILDS", "GUILD_MESSAGES"]
 }); // 사용 목적 고지
