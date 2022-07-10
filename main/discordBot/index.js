@@ -50,6 +50,14 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply('전적 검색 중...');
         await searchUser.update(userName);
     }
+
+    if (commandName === 'gulid55') {
+
+    }
+
+    if (commandName === 'all55') {
+
+    }
 });
 
 client.login(botToken);

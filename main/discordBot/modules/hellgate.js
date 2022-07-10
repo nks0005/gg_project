@@ -37,6 +37,10 @@ class hellgate {
 
         let highUser = false;
         let judgeBoots = false;
+
+        let mohomax = false;
+        let howryou = false;
+
         let msgAlarm = ``;
         for (const eventlog of data['eventlogs']) {
             let zeroIpCheck = false;
@@ -55,6 +59,12 @@ class hellgate {
                     if (strShoes.includes(`SHOES_PLATE_KEEPER`))
                         judgeBoots = true;
                 }
+
+                if (userName === 'mohomax')
+                    mohomax = true;
+
+                if (userName === 'howryou')
+                    howryou = true;
 
                 if (killType == 0) {
                     arrMsg[killType] = `${userName}(${avgIp})`;
@@ -81,6 +91,12 @@ class hellgate {
 
         if (highUser)
             msgAlarm += `높은 기어 유저가 있습니다! <@&995137308732960778>\n`;
+
+        if (mohomax)
+            msgAlarm += `mohomax 유저가 있습니다! <@&995632741108432896>\n`;
+
+        if (howryou)
+            msgAlarm += `howryou 유저가 있습니다! <@&995632741108432896>\n`;
 
         if (msgAlarm != ``)
             this.channel.send(msgAlarm);
