@@ -14,6 +14,7 @@ db.Sequelize = Sequelize;
 db.Battlelogs = require('./battlelogs')(sequelize, Sequelize);
 db.Eventlogs = require('./eventlogs')(sequelize, Sequelize);
 db.Playerlogs = require('./playerlogs')(sequelize, Sequelize);
+db.Totallogs = require('./totallogs')(sequelize, Sequelize);
 
 // battlelog 1 : N eventlog
 

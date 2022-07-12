@@ -18,6 +18,21 @@ class hellgate {
         return new Date(timestamp).toISOString().slice(0, 19).replace('T', ' ');
     }
 
+
+    filterMainHand(mainHand) {
+        let filterMainHand = ``;
+        let start = mainHand.indexOf('_') + 1;
+        let end = mainHand.lastIndexOf('@');
+
+        if (end == -1)
+            filterMainHand = mainHand.substring(start);
+        else
+            filterMainHand = mainHand.substring(start, end);
+
+        return filterMainHand;
+    }
+
+
     async sendDiscord(data) {
         let hellgateEmbed = new MessageEmbed();
         const { battleId, logTime } = data;
@@ -30,8 +45,6 @@ class hellgate {
             .setURL(`https://albionbattles.com/battles/${battleId}`)
             .setAuthor({ name: 'Find! 5v5 hellgate killboard', iconURL: 'https://assets.albiononline.com/uploads/media/default/media/89b5676c825db5b0c9ff14a13d8149cb2477ab4d.jpeg', url: `https://albionbattles.com/battles/${battleId}` })
             .setThumbnail('https://assets.albiononline.com/uploads/media/default/media/89b5676c825db5b0c9ff14a13d8149cb2477ab4d.jpeg')
-            //.addField('Inline field title', 'Some value here', true)
-            //.setImage('https://i.imgur.com/AfFp7pu.png')
             .setTimestamp(this.timestamp2datetime(new Date(date)))
             .setFooter({ text: '한국 시간 : ', iconURL: 'https://i.imgur.com/SR04reG.jpeg' });
 
@@ -166,8 +179,6 @@ class hellgate {
             }
         }
     }
-
 }
-
 
 exports.modules = hellgate;

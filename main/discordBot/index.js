@@ -6,6 +6,7 @@ const Monitor = require('./modules/monitor');
 const Hellgate = require('./modules/hellgate');
 const Statistics = require('./modules/statistics');
 const SearchUser = require('./modules/searchUser');
+const TotalStat = require('./modules/totalstat');
 
 
 
@@ -23,6 +24,8 @@ async function sleep(ms) {
 client.on('ready', () => {
     console.log(`Logged ${client.user.tag}`);
 
+    const totalstat = new TotalStat.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 50);
+    totalstat.updateCycle();
 
     const monitor = new Monitor.modules(50, 5000);
     monitor.updateCycle();

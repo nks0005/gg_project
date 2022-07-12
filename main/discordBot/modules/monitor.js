@@ -71,7 +71,7 @@ class monitor {
                         await axios.get(`http://localhost:3000/${battlelog['id']}`).then((res) => {
                             if (res.status == 201) {
                                 var newDate = new Date().toLocaleTimeString();
-                                console.log(`${newDate} : ${res.status}, ${res.data}`);
+                                console.log(`monitor ${newDate} : ${res.status}, ${res.data}`);
                             }
                         });
                     }

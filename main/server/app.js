@@ -8,6 +8,7 @@ var indexRouter = require('./routes/index');
 var hellgateRouter = require('./routes/hellgate');
 var statisticsRouter = require('./routes/statistics');
 var userSearchRouter = require('./routes/userSearch');
+var totalRouter = require('./routes/total');
 
 var sequelize = require('./models/index.js').sequelize; // mysql sequelize 사용하기 위해
 
@@ -28,6 +29,7 @@ app.use(cookieParser());
 app.use('/hellgate', hellgateRouter);
 app.use('/statistics', statisticsRouter);
 app.use('/search', userSearchRouter);
+app.use('/total', totalRouter);
 app.use('/', indexRouter);
 
 //app.use('/users', usersRouter);

@@ -27,8 +27,12 @@ module.exports = (sequelize, DataTypes) => {
             send: {
                 type: DataTypes.BOOLEAN,
                 allowNull: true
-            }
+            },
 
+            checktotal: {
+                type: DataTypes.BOOLEAN,
+                allowNull: true
+            },
 
         },
 

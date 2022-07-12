@@ -1,0 +1,41 @@
+# 무기 통계
+
+## 테이블 생성
+- totallog TABLE
+
+id, a, b, c, d, e, win, lose, usage
+
+
+
+
+# REST서버
+http://localhost:3000/total/win/{json}
+http://localhost:3000/total/lose/{json}
+
+json
+{
+    A: 'item_a',
+    B: 'item_b',
+    C: 'item_c',
+    D: 'item_d',
+    E: 'item_e',
+}
+
+1. 존재하는지 확인
+SELECT win, lose FROM totallog WHERE a=A AND b=B AND c=C AND d=D AND e=E;
+
+2. 존재하다면,
+win += json.win;
+lose += json.lose;
+UPDATE totallog SET win=win, lose=lose
+
+
+1. 존재하지 않다면,
+INSERT 
+win = win,
+lose = lose;
+
+
+
+# discordbot 서버
+
