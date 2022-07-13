@@ -77,6 +77,25 @@ router.get('/', async function(req, res, next) {
     }
 });
 
+router.get('/list/:limit', async function(req, res, next) {
+    try {
+        const limit = parseInt(req.params.limit);
+        const ret = await Totallogs.findAll({
+            attributes: ['A', 'B', 'C', 'D', 'E', 'win', 'lose'],
+            order: [
+                ['win', 'DESC']
+            ],
+            limit: limit
+        });
+
+        res.status(201).send(ret);
+    } catch (err) {
+        res.status(501).send('Error');
+        console.log(err);
+        next(err);
+    }
+});
+
 router.get('/:battleId', async function(req, res, next) {
     const battleId = req.params.battleId;
     try {

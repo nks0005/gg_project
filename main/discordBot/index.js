@@ -7,6 +7,7 @@ const Hellgate = require('./modules/hellgate');
 const Statistics = require('./modules/statistics');
 const SearchUser = require('./modules/searchUser');
 const TotalStat = require('./modules/totalstat');
+const TotalList = require('./modules/totallist');
 
 
 
@@ -24,7 +25,7 @@ async function sleep(ms) {
 client.on('ready', () => {
     console.log(`Logged ${client.user.tag}`);
 
-    const totalstat = new TotalStat.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 50);
+    const totalstat = new TotalStat.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
     totalstat.updateCycle();
 
     const monitor = new Monitor.modules(50, 5000);
@@ -40,24 +41,21 @@ client.on('interactionCreate', async interaction => {
     const { commandName } = interaction;
     const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 24);
     const searchUser = new SearchUser.modules(client.guilds.cache.get(guildId).channels.cache.get(usersearchChannelId));
+    const totalList = new TotalList.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 20);
 
     if (commandName === 'search') {
         await interaction.reply('검색 중...');
         await statistics.update();
-    }
-
-    if (commandName === 'user55') {
+    } else if (commandName === 'searchall') {
+        await interaction.reply('검색 중...');
+        await statistics.updateall();
+    } else if (commandName === 'user55') {
         const userName = interaction.options.getString('user_name');
         await interaction.reply('전적 검색 중...');
         await searchUser.update(userName);
-    }
-
-    if (commandName === 'gulid55') {
-
-    }
-
-    if (commandName === 'all55') {
-
+    } else if (commandName === 'totallist') {
+        await interaction.reply('전적 불러오는 중...');
+        await totalList.update();
     }
 });
 

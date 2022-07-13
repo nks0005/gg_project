@@ -36,4 +36,20 @@ router.get('/:hour', async function(req, res, next) {
     }
 });
 
+
+router.get('/', async function(req, res, next) {
+    try {
+        const ret = await Battlelogs.findAll({});
+
+        if (ret.length) {
+            res.status(201).send(ret);
+        } else {
+            res.status(202).send('Nothing');
+        }
+    } catch (err) {
+        res.status(501).send('err');
+        console.err(err);
+        next(err);
+    }
+});
 module.exports = router;

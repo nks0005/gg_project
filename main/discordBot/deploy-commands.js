@@ -6,6 +6,8 @@ const { botToken } = require('./config/config.json');
 
 const commands = [
         new SlashCommandBuilder().setName('search').setDescription('24시간 내 5v5 헬게 통계 치를 얻어옵니다.'),
+        new SlashCommandBuilder().setName('totallist').setDescription('2022-07-05부터 현재까지 5v5 헬게 조합 정보를 얻어옵니다.'),
+        new SlashCommandBuilder().setName('searchall').setDescription('2022-07-05부터 현재까지 5v5 헬게 통계 치를 얻어옵니다.'),
         new SlashCommandBuilder().setName('user55').setDescription('5v5 유저 전적을 검색합니다.').addStringOption(option => option.setName('user_name').setDescription('닉네임을 적습니다.').setRequired(true)),
     ]
     .map(command => command.toJSON());
