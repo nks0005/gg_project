@@ -52,14 +52,20 @@ client.on('interactionCreate', async interaction => {
     const collector = interaction.channel.createMessageComponentCollector({ filter });
 
     collector.on('collect', async i => {
+        const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 24);
+        const totalList = new TotalList.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 20);
+        const searchUser = new SearchUser.modules(client.guilds.cache.get(guildId).channels.cache.get("956318538937827348"));
+
         if (i.customId === 'total') {
             await i.reply({ content: '5v5 판수 통계 출력 <#994850279822463087>', ephemeral: true });
+            await statistics.updateall();
         } else if (i.customId === 'match') {
             await i.reply({ content: '5v5 조합 통계 출력 <#994850279822463087>', ephemeral: true });
+            await totalList.update();
         } else if (i.customId === 'findparty') {
             await i.reply({ content: '<#956318538937827348>채널에 구인 광고를 올렸습니다.', ephemeral: true });
 
-            const searchUser = new SearchUser.modules(client.guilds.cache.get(guildId).channels.cache.get("956318538937827348"));
+
             const userName = interaction.member.displayName.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
             await searchUser.update(userName);
 
