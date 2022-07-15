@@ -44,7 +44,7 @@ client.on('interactionCreate', async interaction => {
                 .setStyle('SUCCESS')
             );
 
-        await interaction.reply({ content: '원하는 기능을 선택하세요. [파티 구해요] 기능을 사용하려면 디스코드 닉네임을 인게임 아이디로 만들어야합니다.\n예시) (길드마크)닉네임 or 닉네임 => 🎴wanthealcome or wanthealcome', components: [row] });
+        await interaction.reply({ content: '원하는 기능을 선택하세요. [파티 구해요] 기능을 사용하려면 디스코드 닉네임을 인게임 아이디로 만들어야합니다.\n예시) wanthealcome', components: [row] });
 
     }
 
@@ -65,8 +65,8 @@ client.on('interactionCreate', async interaction => {
         } else if (i.customId === 'findparty') {
             await i.reply({ content: '<#956318538937827348>채널에 구인 광고를 올렸습니다.', ephemeral: true });
 
-
-            const userName = interaction.member.displayName.replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '');
+            console.log(i.user.username);
+            const userName = i.user.username;
             await searchUser.update(userName);
 
             await client.guilds.cache.get(guildId).channels.cache.get("956318538937827348").send({ content: `${userName}이 5v5 레드헬게 파티를 구하고 있습니다!` });
