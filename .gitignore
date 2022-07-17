@@ -9,3 +9,5 @@
 /main/server/config
 /main/discordBot/node_modules
 /main/discordBot/config
+/main/gostopBot/config
+/main/gostopBot/node_modules
