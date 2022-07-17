@@ -1,5 +1,6 @@
 const axios = require('axios');
-const { Guild } = require('discord.js');
+const Mutex = require('./Mutex').modules;
+const { MessageEmbed } = require("discord.js");
 const { Battlelogs, sequelize, Sequelize: { Op } } = require('../models');
 
 class monitor {
@@ -8,6 +9,8 @@ class monitor {
         this.battleMax = BattleMax;
         this.timeCycle = TimeCycle;
         this.channel = Channel;
+
+        this.mutex = new Mutex();
     }
 
     async sleep(ms) {
@@ -78,25 +81,56 @@ class monitor {
     }
 
     async checkDB(id) {
+        let check = false;
         try {
+            this.mutex.acquire();
+
             const ret = await Battlelogs.findAll({
                 where: { battleId: id }
             });
 
-            console.log(ret.length);
             if (ret.length) { // 존재
-                return true;
+                check = true;
             } else { // 존재하지 않음
                 await Battlelogs.create({
                     battleId: id,
                 });
-
-                return false;
+                check = false;
             }
 
+
+
         } catch (err) {
+            this.mutex.release();
             throw `DB 확인 중 에러`;
+        } finally {
+            this.mutex.release();
+            return check;
         }
+
+    }
+
+    async print(id, endTime) {
+        let gostopEmbed = new MessageEmbed();
+
+        gostopEmbed.setColor('#0099ff')
+            .setTitle(`https://albionbattles.com/battles/${id}`)
+            .setURL(`https://albionbattles.com/battles/${id}`)
+            .setAuthor({ name: `[${new Date(endTime).toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드`, iconURL: 'https://play-lh.googleusercontent.com/fmfjgjcyz7cMYERzHWlChuWgN2d3iv875bd1SLw1q-L_dSYXOZ2BIUBd4gEymAKx2uk', url: `https://albionbattles.com/battles/${id}` })
+        await this.channel.send({ embeds: [gostopEmbed] });
+    }
+
+    async updateBattelog(Battlelog) {
+        const battlelog = Battlelog;
+        const { id, endTime } = battlelog;
+
+        if (await this.checkGostopBattle(battlelog) > 0) {
+
+            if (!await this.checkDB(id)) {
+                await this.print(id, endTime);
+            }
+        }
+
     }
 
     async update() {
@@ -105,20 +139,13 @@ class monitor {
             result = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${this.battleMax}&sort=recent`);
             if (result.status == 200 && result.data != null) {
                 for (const battlelog of result.data) {
-                    const { id } = battlelog;
-                    if (await this.checkGostopBattle(battlelog) > 0) {
-
-                        if (!await this.checkDB(id)) {
-                            await this.channel.send(`UTC TIME : [${new Date().toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드 \nhttps://albionbattles.com/battles/${id}`);
-                        }
-                    }
+                    this.updateBattelog(battlelog);
                 }
+
             } else {
                 console.log(result.status);
             }
 
-            //const url = `http://localhost/${battleId}`;
-            // result = await axios.get(url);
         } catch (err) {
             console.error(err);
         }

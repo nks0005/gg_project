@@ -3,8 +3,8 @@ const { botToken } = require('./config/config.json'); // 설정 값
 
 const Monitor = require('./modules/monitor');
 
-const serverId = "997821951819128893";
-const channelId = "997821951819128896";
+const serverId = "477808861663854592";
+const channelId = "682053383087325197";
 
 var sequelize = require('./models/index.js').sequelize;
 sequelize.sync();
