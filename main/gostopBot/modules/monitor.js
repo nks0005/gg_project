@@ -60,23 +60,26 @@ class monitor {
     }
 
     async checkGostopBattle(battlelogs) {
-        const { id, totalKills, players } = battlelogs;
-        const totalPlayers = this.array2count(players);
-
         let gostopCount = 0;
+        try {
+            const { id, totalKills, players } = battlelogs;
+            const totalPlayers = this.array2count(players);
 
-        if (totalPlayers > 0) { // 총 인원 수
-            if (totalKills > 51) {
-                for (var i = 0; i < (totalKills / 50); i++) {
+            if (totalPlayers > 0) { // 총 인원 수
+                if (totalKills > 51) {
+                    for (var i = 0; i < (totalKills / 50); i++) {
+                        gostopCount += parseInt(await this.checkGostopEvent(id));
+                    }
+                } else {
                     gostopCount += parseInt(await this.checkGostopEvent(id));
                 }
-            } else {
-                gostopCount += parseInt(await this.checkGostopEvent(id));
+
             }
 
+            //console.log(gostopCount);
+        } catch (err) {
+            console.error(err);
         }
-
-        //console.log(gostopCount);
         return gostopCount;
     }
 
@@ -111,24 +114,33 @@ class monitor {
     }
 
     async print(id, endTime) {
-        let gostopEmbed = new MessageEmbed();
+        try {
+            let gostopEmbed = new MessageEmbed();
 
-        gostopEmbed.setColor('#0099ff')
-            .setTitle(`https://albionbattles.com/battles/${id}`)
-            .setURL(`https://albionbattles.com/battles/${id}`)
-            .setAuthor({ name: `[${new Date(endTime).toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드`, iconURL: 'https://play-lh.googleusercontent.com/fmfjgjcyz7cMYERzHWlChuWgN2d3iv875bd1SLw1q-L_dSYXOZ2BIUBd4gEymAKx2uk', url: `https://albionbattles.com/battles/${id}` })
-        await this.channel.send({ embeds: [gostopEmbed] });
+            gostopEmbed.setColor('#0099ff')
+                .setTitle(`https://albionbattles.com/battles/${id}`)
+                .setURL(`https://albionbattles.com/battles/${id}`)
+                .setAuthor({ name: `[${new Date(endTime).toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드`, iconURL: 'https://play-lh.googleusercontent.com/fmfjgjcyz7cMYERzHWlChuWgN2d3iv875bd1SLw1q-L_dSYXOZ2BIUBd4gEymAKx2uk', url: `https://albionbattles.com/battles/${id}` })
+            await this.channel.send({ embeds: [gostopEmbed] });
+            console.log(`${new Date()} Send ${battlelog['id']}`);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     async updateBattelog(Battlelog) {
-        const battlelog = Battlelog;
-        const { id, endTime } = battlelog;
+        try {
+            const battlelog = Battlelog;
+            const { id, endTime } = battlelog;
 
-        if (await this.checkGostopBattle(battlelog) > 0) {
+            if (await this.checkGostopBattle(battlelog) > 0) {
 
-            if (!await this.checkDB(id)) {
-                await this.print(id, endTime);
+                if (!await this.checkDB(id)) {
+                    await this.print(id, endTime);
+                }
             }
+        } catch (err) {
+            console.error(err);
         }
 
     }
@@ -139,7 +151,7 @@ class monitor {
             result = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${this.battleMax}&sort=recent`);
             if (result.status == 200 && result.data != null) {
                 for (const battlelog of result.data) {
-                    this.updateBattelog(battlelog);
+                    await this.updateBattelog(battlelog);
                 }
 
             } else {
@@ -154,10 +166,11 @@ class monitor {
     async updateCycle() {
         while (true) {
             try {
-                console.time('update');
+                var date = new Date();
+                console.time(date);
                 await this.update();
                 await this.sleep(this.timeCycle);
-                console.timeEnd('update');
+                console.timeEnd(date);
             } catch (err) {
                 console.error(err);
             }
