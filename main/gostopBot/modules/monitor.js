@@ -62,7 +62,7 @@ class monitor {
 
         let gostopCount = 0;
 
-        if (totalPlayers > 20) { // 총 인원 수 
+        if (totalPlayers > 0) { // 총 인원 수
             if (totalKills > 51) {
                 for (var i = 0; i < (totalKills / 50); i++) {
                     gostopCount += parseInt(await this.checkGostopEvent(id));
@@ -83,9 +83,10 @@ class monitor {
                 where: { battleId: id }
             });
 
-            if (ret.length) // 존재
+            console.log(ret.length);
+            if (ret.length) { // 존재
                 return true;
-            else { // 존재하지 않음
+            } else { // 존재하지 않음
                 await Battlelogs.create({
                     battleId: id,
                 });
@@ -107,8 +108,9 @@ class monitor {
                     const { id } = battlelog;
                     if (await this.checkGostopBattle(battlelog) > 0) {
 
-                        if (!this.checkDB(id))
-                            this.channel.send(`https://albionbattles.com/battles/${id}`);
+                        if (!await this.checkDB(id)) {
+                            await this.channel.send(`UTC TIME : [${new Date().toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드 \nhttps://albionbattles.com/battles/${id}`);
+                        }
                     }
                 }
             } else {
