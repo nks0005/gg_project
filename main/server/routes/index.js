@@ -42,6 +42,71 @@ async function createPlayerlog(json, eventId, killType, Playerlogs, transaction)
     }, { transaction });
 }
 
+router.get('/ten/:battleid', async function(req, res, next) {
+    //console.log(req.params.battleid);
+    const battleId = req.params.battleid;
+    if (battleId != undefined && parseInt(battleId) == battleId) {
+        // 이미 존재하는지 확인
+        let check = await Battlelogs.findAll({
+            attributes: ['battleId'],
+            where: { battleId: parseInt(battleId) }
+        });
+        //console.log(check.length);
+        if (check.length > 0) { res.status(202).send("Exists"); } else {
+
+            let transaction;
+            try {
+                transaction = await sequelize.transaction();
+
+                let battlelogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles/${battleId}`);
+                const { id, totalKills, players, endTime } = battlelogs.data;
+                //console.log(`id = ${id}, totalKills = ${totalKills}, players = ${array2count(players)}, endTime = ${timestamp2datetime(endTime)}`);
+
+                await Battlelogs.create({
+                    battleId: id,
+                    totalKills: totalKills,
+                    totalPlayers: array2count(players),
+                    logTime: timestamp2datetime(endTime),
+                    ten: 1
+                }, { transaction });
+
+                let eventlogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/events/battle/${id}?offset=0&limit=${totalKills}`)
+                for (const eventlog of eventlogs.data) {
+                    // eventlog
+                    const { EventId, GroupMembers, KillArea, BattleId } = eventlog;
+                    await Eventlogs.create({
+                        eventId: EventId,
+                        partyMemberCount: array2count(GroupMembers),
+                        killArea: KillArea,
+                        battleId: BattleId
+                    }, { transaction });
+
+                    // playerlog
+                    const { Killer, Victim, Participants } = eventlog;
+
+                    // Killer (killtype)0
+                    await createPlayerlog(Killer, EventId, killType.Killer, Playerlogs, transaction);
+
+                    // Victim (killtype)1
+                    await createPlayerlog(Victim, EventId, killType.Victim, Playerlogs, transaction);
+
+                    // Participants (killtype)2
+                    for (const support of Participants) {
+                        await createPlayerlog(support, EventId, killType.Support, Playerlogs, transaction);
+                    }
+                }
+
+                await transaction.commit();
+                res.status(201).send(id.toString());
+            } catch (err) {
+                console.log("error");
+                res.status(501).send('err');
+                if (transaction) await transaction.rollback();
+                next(err);
+            }
+        }
+    }
+});
 
 // battleid 값을 받으면 크롤링과 DB에 업데이트를 진행한다.
 router.get('/:battleid', async function(req, res, next) {
@@ -68,7 +133,8 @@ router.get('/:battleid', async function(req, res, next) {
                     battleId: id,
                     totalKills: totalKills,
                     totalPlayers: array2count(players),
-                    logTime: timestamp2datetime(endTime)
+                    logTime: timestamp2datetime(endTime),
+                    ten: 0
                 }, { transaction });
 
                 let eventlogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/events/battle/${id}?offset=0&limit=${totalKills}`)

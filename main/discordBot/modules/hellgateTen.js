@@ -1,5 +1,4 @@
 const axios = require('axios');
-const { guildId, hellgate55ChannelId } = require('../config/config.json');
 const { MessageEmbed } = require("discord.js");
 
 class hellgate {
@@ -43,7 +42,7 @@ class hellgate {
         hellgateEmbed.setColor('#0099ff')
             .setTitle(`https://albionbattles.com/battles/${battleId}`)
             .setURL(`https://albionbattles.com/battles/${battleId}`)
-            .setAuthor({ name: 'Find! 5v5 hellgate killboard', url: `https://albionbattles.com/battles/${battleId}` })
+            .setAuthor({ name: 'Find! 10v10 hellgate killboard', url: `https://albionbattles.com/battles/${battleId}` })
             .setTimestamp(this.timestamp2datetime(new Date(date)))
             .setFooter({ text: '한국 시간 : ' });
 
@@ -146,7 +145,7 @@ class hellgate {
     async update() {
         try {
             // 데이터를 받는다
-            let ret = await axios.get(`http://localhost:3000/hellgate`);
+            let ret = await axios.get(`http://localhost:3000/hellgate/ten/`);
             //console.log(ret.data[0]['eventlogs'])
 
             if (ret.data.length && ret.status == 201) {

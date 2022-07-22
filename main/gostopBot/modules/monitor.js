@@ -86,8 +86,6 @@ class monitor {
     async checkDB(id) {
         let check = false;
         try {
-            this.mutex.acquire();
-
             const ret = await Battlelogs.findAll({
                 where: { battleId: id }
             });
@@ -104,10 +102,8 @@ class monitor {
 
 
         } catch (err) {
-            this.mutex.release();
-            throw `DB 확인 중 에러`;
+            return `DB 확인 중 에러`;
         } finally {
-            this.mutex.release();
             return check;
         }
 
@@ -122,7 +118,7 @@ class monitor {
                 .setURL(`https://albionbattles.com/battles/${id}`)
                 .setAuthor({ name: `[${new Date(endTime).toISOString().replace('T', ' ').substring(0, 19)}] GOSTOP 킬보드`, iconURL: 'https://play-lh.googleusercontent.com/fmfjgjcyz7cMYERzHWlChuWgN2d3iv875bd1SLw1q-L_dSYXOZ2BIUBd4gEymAKx2uk', url: `https://albionbattles.com/battles/${id}` })
             await this.channel.send({ embeds: [gostopEmbed] });
-            console.log(`${new Date()} Send ${battlelog['id']}`);
+            console.log(`${new Date()} Send ${id}`);
         } catch (err) {
             console.error(err);
         }
@@ -151,7 +147,7 @@ class monitor {
             result = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles?offset=0&limit=${this.battleMax}&sort=recent`);
             if (result.status == 200 && result.data != null) {
                 for (const battlelog of result.data) {
-                    await this.updateBattelog(battlelog);
+                    this.updateBattelog(battlelog);
                 }
 
             } else {

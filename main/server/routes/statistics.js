@@ -20,7 +20,8 @@ router.get('/:hour', async function(req, res, next) {
             where: {
                 createdAt: {
                     [Op.between]: [new Date(startTime), new Date(endTime)]
-                }
+                },
+                ten: 0
             }
         });
 
@@ -39,7 +40,9 @@ router.get('/:hour', async function(req, res, next) {
 
 router.get('/', async function(req, res, next) {
     try {
-        const ret = await Battlelogs.findAll({});
+        const ret = await Battlelogs.findAll({
+            where: { ten: 0 }
+        });
 
         if (ret.length) {
             res.status(201).send(ret);
