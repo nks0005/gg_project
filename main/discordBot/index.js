@@ -27,13 +27,13 @@ client.on('ready', () => {
     console.log(`Logged ${client.user.tag}`);
 
     const totalstat = new TotalStat.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
-    //totalstat.updateCycle();
+    totalstat.updateCycle();
 
     const monitor = new Monitor.modules(50, 5000);
     monitor.updateCycle();
 
     const hellgate = new Hellgate.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate55ChannelId), 5000);
-    //hellgate.updateCycle();
+    hellgate.updateCycle();
 
     const hellgate1010 = new Hellgate1010.modules(client.guilds.cache.get(guildId).channels.cache.get(hellgate1010ChannelId), 5000);
     hellgate1010.updateCycle();

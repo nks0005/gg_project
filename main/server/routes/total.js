@@ -62,7 +62,7 @@ async function updateTotal(data, win, lose) {
 router.get('/', async function(req, res, next) {
     try {
         const ret = await Battlelogs.findAll({
-            where: { checkTotal: null },
+            where: { checkTotal: null, ten: 0 },
             limit: 1
         });
         if (ret.length) {
@@ -72,7 +72,7 @@ router.get('/', async function(req, res, next) {
         }
     } catch (err) {
         res.status(501).send('err');
-        console.err(err);
+        console.error(err);
         next(err);
     }
 });

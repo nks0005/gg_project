@@ -56,8 +56,34 @@ class monitor {
 
     }
 
-    async check1010Hellgate(battlelog) {
+    async check1010Hellgate(battlelogs) {
+        const { id, totalKills, players } = battlelogs;
+        const totalPlayers = this.array2count(players);
 
+        if (totalPlayers == 20 && totalKills >= 10 && totalKills < 20) {
+            let eventlogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/events/battle/${id}?offset=0&limit=${totalKills}`);
+
+            var healer = 0;
+            var party = 0;
+            var item = 0;
+
+            for (const eventlog of eventlogs.data) {
+                // 파티 확인
+                if (this.array2count(eventlog['GroupMembers']) === 10) party++;
+
+                // 힐 딜 확인
+                for (const support of eventlog['Participants']) {
+                    if (support['SupportHealingDone'] > 0) healer++;
+                    if (support['AverageItemPower'] != 0 && support['AverageItemPower'] < 1100 || support['AverageItemPower'] > 1430) item++;
+                }
+            }
+            //console.log(`${id} = ${party} : ${totalKills} | ${healer} | ${item}`);
+            if (party >= totalKills && healer > 0 && item == 0) {
+                //console.log(`${id} = ${party} : ${totalKills} | ${healer} | ${item}`);
+                return true;
+            }
+        }
+        return false;
     }
 
     async update() {
@@ -74,18 +100,49 @@ class monitor {
                                 console.log(`monitor ${newDate} : ${res.status}, ${res.data}`);
                             }
                         });
+                    } else if (await this.check1010Hellgate(battlelog)) {
+                        await axios.get(`http://localhost:3000/ten/${battlelog['id']}`).then((res) => {
+                            if (res.status == 201) {
+                                var newDate = new Date().toLocaleTimeString();
+                                console.log(`monitor ${newDate} : ${res.status}, ${res.data}`);
+                            }
+                        });
+                    } else {
+                        //console.log(result.status);
                     }
                 }
-            } else {
-                console.log(result.status);
             }
 
+            result = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/battles?offset=${this.battleMax}&limit=${this.battleMax}&sort=recent`);
+            if (result.status == 200 && result.data != null) {
+                for (const battlelog of result.data) {
+                    //this.cursor = battlelog['id'];
+                    if (await this.check55Hellgate(battlelog)) {
+                        await axios.get(`http://localhost:3000/${battlelog['id']}`).then((res) => {
+                            if (res.status == 201) {
+                                var newDate = new Date().toLocaleTimeString();
+                                console.log(`monitor ${newDate} : ${res.status}, ${res.data}`);
+                            }
+                        });
+                    } else if (await this.check1010Hellgate(battlelog)) {
+                        await axios.get(`http://localhost:3000/ten/${battlelog['id']}`).then((res) => {
+                            if (res.status == 201) {
+                                var newDate = new Date().toLocaleTimeString();
+                                console.log(`monitor ${newDate} : ${res.status}, ${res.data}`);
+                            }
+                        });
+                    } else {
+                        //console.log(result.status);
+                    }
+                }
+            }
             //const url = `http://localhost/${battleId}`;
             // result = await axios.get(url);
         } catch (err) {
             console.error(err);
         }
     }
+
 
     async updateCycle() {
 
