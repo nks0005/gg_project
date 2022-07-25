@@ -1,5 +1,5 @@
 const { Client } = require("discord.js"); // discord 봇 모듈
-const { guildId, hellgate55ChannelId, hellgate1010ChannelId, statisticsChannelId, usersearchChannelId, botToken } = require('./config/config.json'); // 설정 값
+const { guildId, hellgate55ChannelId, hellgate1010ChannelId, statistics1010ChannelId, statisticsChannelId, usersearchChannelId, botToken } = require('./config/config.json'); // 설정 값
 
 
 const Monitor = require('./modules/monitor');
@@ -43,16 +43,19 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
     const { commandName } = interaction;
-    const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 24);
+    const statistics = new Statistics.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 24, client.guilds.cache.get(guildId).channels.cache.get(statistics1010ChannelId));
     const searchUser = new SearchUser.modules(client.guilds.cache.get(guildId).channels.cache.get(usersearchChannelId));
     const totalList = new TotalList.modules(client.guilds.cache.get(guildId).channels.cache.get(statisticsChannelId), 20);
 
     if (commandName === 'search') {
         await interaction.reply('검색 중...');
         await statistics.update();
-    } else if (commandName === 'searchall') {
+    } else if (commandName === 'searchall55') {
         await interaction.reply('검색 중...');
         await statistics.updateall();
+    } else if (commandName === 'searchall1010') {
+        await interaction.reply('검색 중...');
+        await statistics.updateall1010();
     } else if (commandName === 'user55') {
         const userName = interaction.options.getString('user_name');
         await interaction.reply('전적 검색 중...');
