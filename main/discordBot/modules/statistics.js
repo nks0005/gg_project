@@ -12,13 +12,13 @@ class statistics {
 
     async updateall1010() {
         try {
-            const ret = await axios.get(`http://localhost:3000/statistics/ten`);
+            const ret = await axios.get(`http://localhost:3000/statistics/ten/99999999999999`);
 
             if (ret.status == 201) {
                 let hellgateEmbed = new MessageEmbed();
 
                 hellgateEmbed.setColor('#0099ff')
-                    .setTitle(`2022-07-05 ~ 현재까지 통계 입니다. UTC 기준입니다.`)
+                    .setTitle(`2022-07-23 ~ 현재까지 통계 입니다. UTC 기준입니다.`)
 
                 .addField(`총판수 : `, `${ret.data.length}`, false);
 
@@ -33,7 +33,7 @@ class statistics {
                     hellgateEmbed.addField(`${i}시 : `, `${arrTime[i]} 판이 진행되었습니다.`, true);
                 }
 
-                this.channel.send({ embeds: [hellgateEmbed] });
+                this.channel1010.send({ embeds: [hellgateEmbed] });
 
                 const chart = new QuickChart();
                 chart.setConfig({
@@ -52,11 +52,11 @@ class statistics {
                 });
                 const url = await chart.getShortUrl();
 
-                this.channel.send(`그래프 ${url}`);
+                this.channel1010.send(`그래프 ${url}`);
 
             } else if (ret.status == 202) {
                 console.log("통계 조사 중 202 에러");
-                this.channel.send('오류');
+                this.channel1010.send('오류');
             }
 
         } catch (err) {

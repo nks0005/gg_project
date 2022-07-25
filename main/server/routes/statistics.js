@@ -21,7 +21,7 @@ router.get('/:hour', async function(req, res, next) {
                 createdAt: {
                     [Op.between]: [new Date(startTime), new Date(endTime)]
                 },
-                ten: 0
+                ten: false
             }
         });
 
@@ -53,7 +53,7 @@ router.get('/ten/:hour', async function(req, res, next) {
                 createdAt: {
                     [Op.between]: [new Date(startTime), new Date(endTime)]
                 },
-                ten: 1
+                ten: true
             }
         });
 
@@ -73,7 +73,7 @@ router.get('/ten/:hour', async function(req, res, next) {
 router.get('/ten/', async function(req, res, next) {
     try {
         const ret = await Battlelogs.findAll({
-            where: { ten: 1 }
+            where: { ten: true }
         });
 
         if (ret.length) {
@@ -87,12 +87,11 @@ router.get('/ten/', async function(req, res, next) {
         next(err);
     }
 });
-module.exports = router;
 
 router.get('/', async function(req, res, next) {
     try {
         const ret = await Battlelogs.findAll({
-            where: { ten: 0 }
+            where: { ten: false }
         });
 
         if (ret.length) {
