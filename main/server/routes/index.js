@@ -134,7 +134,7 @@ router.get('/:battleid', async function(req, res, next) {
                     totalKills: totalKills,
                     totalPlayers: array2count(players),
                     logTime: timestamp2datetime(endTime),
-                    ten: 0
+                    ten: false
                 }, { transaction });
 
                 let eventlogs = await axios.get(`https://gameinfo.albiononline.com/api/gameinfo/events/battle/${id}?offset=0&limit=${totalKills}`)

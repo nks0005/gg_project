@@ -18,7 +18,7 @@ class statistics {
                 let hellgateEmbed = new MessageEmbed();
 
                 hellgateEmbed.setColor('#0099ff')
-                    .setTitle(`2022-07-23 ~ 현재까지 통계 입니다. UTC 기준입니다.`)
+                    .setTitle(`2022-07-23 ~ 현재까지 통계 입니다. 한국 기준입니다.`)
 
                 .addField(`총판수 : `, `${ret.data.length}`, false);
 
@@ -73,7 +73,7 @@ class statistics {
                 let hellgateEmbed = new MessageEmbed();
 
                 hellgateEmbed.setColor('#0099ff')
-                    .setTitle(`2022-07-05 ~ 현재까지 통계 입니다. UTC 기준입니다.`)
+                    .setTitle(`2022-07-05 ~ 현재까지 통계 입니다. 한국 기준입니다.`)
 
                 .addField(`총판수 : `, `${ret.data.length}`, false);
 
@@ -127,7 +127,7 @@ class statistics {
                 let hellgateEmbed = new MessageEmbed();
 
                 hellgateEmbed.setColor('#0099ff')
-                    .setTitle(`${this.hour} 시간 내 통계 입니다. UTC 기준입니다.`)
+                    .setTitle(`${this.hour} 시간 내 통계 입니다. 한국 기준입니다.`)
 
                 .addField(`총판수 : `, `${ret.data.length}`, false);
 
